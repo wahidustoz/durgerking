@@ -20,6 +20,7 @@ public class UpdateHandler : IUpdateHandler
         return Task.CompletedTask;
     }
 
+
     public Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
         logger.LogInformation(
