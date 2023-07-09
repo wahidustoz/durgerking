@@ -22,10 +22,10 @@ public class UpdateHandler : IUpdateHandler
 
     public Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
-        var UpdateType = update.Type;
-        var UserID = update.Message?.From.Id;
-
-        logger.LogInformation("Type message {updateType} from user Id {userId}",UpdateType,UserID);
+        logger.LogInformation(
+            "Update {updateType} received from {userId}.",
+            update.Type,
+            update.Message?.From?.Id);
         return Task.CompletedTask;
     }
 }
