@@ -1,7 +1,6 @@
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
 
 namespace DurgerKing.Services;
 
@@ -21,9 +20,13 @@ public class UpdateHandler : IUpdateHandler
         return Task.CompletedTask;
     }
 
+
     public Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
-        // TODO: logger.LogInformation update type and userId 
+        logger.LogInformation(
+            "Update {updateType} received from {userId}.",
+            update.Type,
+            update.Message?.From?.Id);
         return Task.CompletedTask;
     }
 }
