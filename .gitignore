@@ -475,5 +475,4 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
-a p p s e t t i n g s . * . j s o n  
- 
+appsettings.*.json
