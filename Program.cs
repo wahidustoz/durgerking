@@ -1,4 +1,5 @@
 using DurgerKing.Services;
+using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 
@@ -8,6 +9,9 @@ builder.Services.AddTransient<IUpdateHandler, UpdateHandler>();
 builder.Services.AddHostedService<BotStartingBackgroundService>();
 builder.Services.AddSingleton<ITelegramBotClient, TelegramBotClient>(
     p => new TelegramBotClient(builder.Configuration.GetValue("BotApiKey", string.Empty)));
+
+ builder.Services.AddDbContext<AppDbContext>(
+ options => options.UseNpgsql(builder.Configuration.GetConnectionString("PostgressConnection")));
 
 var app = builder.Build();
 
