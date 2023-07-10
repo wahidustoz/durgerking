@@ -5,8 +5,6 @@ namespace DurgerKing.Services;
 
 public class BotStartingBackgroundService : BackgroundService
 {
-   
-   
     private readonly ILogger<BotStartingBackgroundService> logger;
     private readonly ITelegramBotClient botClient;
     private readonly IUpdateHandler updateHandler;
@@ -20,7 +18,7 @@ public class BotStartingBackgroundService : BackgroundService
         this.botClient = botClient;
         this.updateHandler = updateHandler;
     }
-
+    
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
         try

@@ -1,3 +1,4 @@
+using DurgerKing.Entity.Data;
 using DurgerKing.Services;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
@@ -10,7 +11,7 @@ builder.Services.AddHostedService<BotStartingBackgroundService>();
 builder.Services.AddSingleton<ITelegramBotClient, TelegramBotClient>(
     p => new TelegramBotClient(builder.Configuration.GetValue("BotApiKey", string.Empty)));
 
-builder.Services.AddDbContext<AppDbContext>(
+builder.Services.AddDbContext<IAppDbContext, AppDbContext>(
     options => options.UseNpgsql(builder.Configuration.GetConnectionString("PostgresConnection")));
 
 var app = builder.Build();
