@@ -33,7 +33,7 @@ public partial class UpdateHandler : IUpdateHandler
             update.Type,
             update.Message?.From?.Id);
 
-        await UpsertUsersAsync(update, cancellationToken);
+        await UpsertUserAsync(update, cancellationToken);
 
         var handleTask = update.Type switch
         {
@@ -51,7 +51,7 @@ public partial class UpdateHandler : IUpdateHandler
         }
     }
 
-    private async Task UpsertUsersAsync(Update update, CancellationToken cancellationToken)
+    private async Task UpsertUserAsync(Update update, CancellationToken cancellationToken)
     { 
         var telegramUser = GetUserFromUpdate(update);
         using(var scope = serviceScopeFactory.CreateScope())
