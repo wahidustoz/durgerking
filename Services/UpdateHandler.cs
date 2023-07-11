@@ -42,7 +42,6 @@ public class UpdateHandler : IUpdateHandler
         using (var scope = serviceScopeFactory.CreateScope())
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<IAppDbContext>();
-
             var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == telegramUser.Id);
 
             if(user is null)
@@ -78,6 +77,6 @@ public class UpdateHandler : IUpdateHandler
             Telegram.Bot.Types.Enums.UpdateType.EditedMessage => update.EditedMessage.From,
             Telegram.Bot.Types.Enums.UpdateType.CallbackQuery => update.CallbackQuery.From,
             Telegram.Bot.Types.Enums.UpdateType.InlineQuery => update.InlineQuery.From,
-            _ => throw new Exception("We dont supportas update type {update.Type} yet") 
+            _ => throw new Exception("We don't support update.Type {update.Type} yet") 
         };   
 }

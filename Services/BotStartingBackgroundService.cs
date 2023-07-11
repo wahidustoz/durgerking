@@ -18,7 +18,6 @@ public class BotStartingBackgroundService : BackgroundService
         this.botClient = botClient;
         this.updateHandler = updateHandler;
     }
-    
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
         try
