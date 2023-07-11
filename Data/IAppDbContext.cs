@@ -1,9 +1,6 @@
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 namespace DurgerKing.Entity.Data;
-public interface IAppDbContext
+interface IAppDbContext
 {
-    DbSet<User> Users { get; set; }
-    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+    public DbSet<User> Users { get; set; }
 }
