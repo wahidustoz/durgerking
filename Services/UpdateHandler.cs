@@ -25,17 +25,17 @@ public class UpdateHandler : IUpdateHandler
         return Task.CompletedTask;
     }
 
-
-    public Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+    public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
         logger.LogInformation(
             "Update {updateType} received from {userId}.",
             update.Type,
             update.Message?.From?.Id);
-        return Task.CompletedTask;
+        
+        await UpsertUserAsync(update,cancellationToken);
     }
 
-    public async Task UpsertUserAsync(Update update,CancellationToken cancellationToken)
+    private async Task UpsertUserAsync(Update update,CancellationToken cancellationToken)
     {
         var telegramUser = GetUserFromUpdate(update);
         using (var scope = serviceScopeFactory.CreateScope())
@@ -61,14 +61,10 @@ public class UpdateHandler : IUpdateHandler
                 user.Language = telegramUser.LanguageCode;
                 user.ModifiedAt = DateTime.UtcNow;
                 logger.LogInformation("User with Id {id} updated",telegramUser.Id);
-
             }
-
             await dbContext.SaveChangesAsync(cancellationToken);
         }
-
     }
-
 
     private User GetUserFromUpdate(Update update)
         => update.Type switch
