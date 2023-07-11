@@ -76,7 +76,8 @@ public partial class UpdateHandler : IUpdateHandler
                 user.Fullname = $"{telegramUser.FirstName} {telegramUser.LastName}";
                 user.Username = telegramUser.Username;
                 user.Language = telegramUser.LanguageCode;
-                logger.LogInformation("New user with ID {id} update.", telegramUser.Id);
+                user.ModifiedAt = DateTime.UtcNow;
+                logger.LogInformation("User with Id {id} updated",telegramUser.Id);
             }
             await dbContext.SaveChangesAsync(cancellationToken);
         }
