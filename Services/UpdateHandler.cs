@@ -3,10 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
-
+using Telegram.Bot.Types.Enums;
 namespace DurgerKing.Services;
-
-public class UpdateHandler : IUpdateHandler
+public partial class UpdateHandler : IUpdateHandler
 {
     private readonly ILogger<UpdateHandler> logger;
     private readonly IServiceScopeFactory serviceScopeFactory;
@@ -28,13 +27,32 @@ public class UpdateHandler : IUpdateHandler
             "Update {updateType} received from {userId}.",
             update.Type,
             update.Message?.From?.Id);
-
-        await UpsetUserAsync(update, cancellationToken);
+        await UpsetUsersAsync(update, cancellationToken);
+        var handleTask = update.Type switch
+        {
+            UpdateType.Message => HandleMessageAsync(botClient, update.Message, cancellationToken),
+            UpdateType.EditedMessage => HandleEditedMessageAsync(botClient, update.EditedMessage, cancellationToken),
+            UpdateType.CallbackQuery => HandleCallbackQueryAsync(botClient, update.CallbackQuery, cancellationToken),
+            UpdateType.InlineQuery => HandleInlineQueryAsync(botClient, update.InlineQuery, cancellationToken),
+            _ => HandleUnkownUpdateAsync(botClient, update, cancellationToken)
+        };
+        try
+        {
+            await handleTask;
+        }
+        catch(Exception ex)
+        {
+            await HandlePollingErrorAsync(botClient, ex, cancellationToken);
+        }
     }
-    private async Task UpsetUserAsync(Update update, CancellationToken cancellationToken)
+    private Task HandleUnkownUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
+        throw new NotImplementedException();
+    }
+    private async Task UpsetUsersAsync(Update update, CancellationToken cancellationToken)
+    { 
         var telegramUser = GetUserFromUpdate(update);
-        using (var scope = serviceScopeFactory.CreateScope())
+        using(var scope = serviceScopeFactory.CreateScope())
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<IAppDbContext>();
             var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == telegramUser.Id);
@@ -56,19 +74,25 @@ public class UpdateHandler : IUpdateHandler
                 user.Fullname = $"{telegramUser.FirstName} {telegramUser.LastName}";
                 user.Username = telegramUser.Username;
                 user.Language = telegramUser.LanguageCode;
-                user.ModifiedAt = DateTime.UtcNow;
-                logger.LogInformation("New user with ID {id} updated.", telegramUser.Id);
+                logger.LogInformation("New user with ID {id} update.", telegramUser.Id);
             }
             await dbContext.SaveChangesAsync(cancellationToken);
         }
     }
+
+    private object GetUserIdFromUpdate(Update update)
+    {
+        throw new NotImplementedException();
+    }
+
     private User GetUserFromUpdate(Update update)
-        => update.Type switch
-        {
-            Telegram.Bot.Types.Enums.UpdateType.Message => update.Message.From,
-            Telegram.Bot.Types.Enums.UpdateType.EditedMessage => update.EditedMessage.From,
-            Telegram.Bot.Types.Enums.UpdateType.CallbackQuery => update.CallbackQuery.From,
-            Telegram.Bot.Types.Enums.UpdateType.InlineQuery => update.InlineQuery.From,
-            _ => throw new Exception("We don't support update type {update.Type} yet") 
-        };   
+    => update.Type switch
+    {
+        Telegram.Bot.Types.Enums.UpdateType.Message => update.Message.From,
+        Telegram.Bot.Types.Enums.UpdateType.EditedMessage => update.EditedMessage.From,
+        Telegram.Bot.Types.Enums.UpdateType.CallbackQuery => update.CallbackQuery.From,
+        Telegram.Bot.Types.Enums.UpdateType.InlineQuery => update.InlineQuery.From,
+        _=> throw new Exception("We don't support update type {update.Type}yet")
+    };
+
 }
