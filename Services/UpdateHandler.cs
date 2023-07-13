@@ -33,14 +33,28 @@ public class UpdateHandler : IUpdateHandler
             update.Type,
             update.Message?.From?.Id);
 
-            if (update.Message?.Text == "/settings")
-            {
-                await SelectSettingsAsync(botClient, update,cancellationToken);
-            }
-            else
-            {
-                await UpsetUserAsync(update,cancellationToken);
-            }       
+        if (update.Message?.Text == "/settings")
+        {
+             var settingsKeyboard = new InlineKeyboardMarkup(new[]
+             {
+                 new[]
+                 {InlineKeyboardButton.WithCallbackData("Language 🎏", "language"),},
+                 new[]
+                 {InlineKeyboardButton.WithCallbackData("Locations 📌", "locations"),},
+                 new[]
+                 {InlineKeyboardButton.WithCallbackData("Contact ☎️", "contact"),},
+             });
+            
+             await botClient.SendTextMessageAsync(
+                 chatId: update.Message.Chat.Id,
+                 text: "Choose an option to update your settings:",
+                 replyMarkup: settingsKeyboard,
+                 cancellationToken: cancellationToken);
+        }
+        else
+        {
+            await UpsetUserAsync(update, cancellationToken);
+        }       
     }
 
     private async Task UpsetUserAsync(Update update, CancellationToken cancellationToken)
@@ -87,25 +101,4 @@ public class UpdateHandler : IUpdateHandler
             Telegram.Bot.Types.Enums.UpdateType.InlineQuery => update.InlineQuery.From,
             _ => throw new Exception("We dont supportas update type {update.Type} yet") 
         };   
-        
-    private async Task SelectSettingsAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
-    {
-        var settingkeyboard = new InlineKeyboardMarkup(
-            new InlineKeyboardButton[][]
-            {
-                new InlineKeyboardButton[]
-                {
-                    InlineKeyboardButton.WithCallbackData(text: "Language 🎏", "language"),
-                    InlineKeyboardButton.WithCallbackData(text: "Locations 📌","locations"),
-                    InlineKeyboardButton.WithCallbackData(text: "Phone ☎️", "phone"),
-                }
-            }
-        );
-        await botClient.SendTextMessageAsync(
-            chatId: update.Message.Chat.Id,
-            text: "Choose an option to update your settings:",
-            replyMarkup: settingkeyboard,
-            cancellationToken: cancellationToken);
-    }
-    
 }
