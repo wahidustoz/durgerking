@@ -9,6 +9,7 @@ public partial class UpdateHandler : IUpdateHandler
 {
     private readonly ILogger<UpdateHandler> logger;
     private readonly IServiceScopeFactory serviceScopeFactory;
+
     public UpdateHandler(
         ILogger<UpdateHandler> logger,
         IServiceScopeFactory serviceScopeFactory)
@@ -16,26 +17,28 @@ public partial class UpdateHandler : IUpdateHandler
         this.logger = logger;
         this.serviceScopeFactory = serviceScopeFactory;
     }
+
     public Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
     {
         logger.LogError(exception, "Polling error happened.");
         return Task.CompletedTask;
     }
+
     public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
         logger.LogInformation(
             "Update {updateType} received from {userId}.",
             update.Type,
             update.Message?.From?.Id);
+
         await UpsetUsersAsync(update, cancellationToken);
+
         var handleTask = update.Type switch
         {
             UpdateType.Message => HandleMessageAsync(botClient, update.Message, cancellationToken),
-            UpdateType.EditedMessage => HandleEditedMessageAsync(botClient, update.EditedMessage, cancellationToken),
-            UpdateType.CallbackQuery => HandleCallbackQueryAsync(botClient, update.CallbackQuery, cancellationToken),
-            UpdateType.InlineQuery => HandleInlineQueryAsync(botClient, update.InlineQuery, cancellationToken),
-            _ => HandleUnkownUpdateAsync(botClient, update, cancellationToken)
+            _ => throw new NotImplementedException()
         };
+
         try
         {
             await handleTask;
@@ -45,10 +48,7 @@ public partial class UpdateHandler : IUpdateHandler
             await HandlePollingErrorAsync(botClient, ex, cancellationToken);
         }
     }
-    private Task HandleUnkownUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
-    }
+
     private async Task UpsetUsersAsync(Update update, CancellationToken cancellationToken)
     { 
         var telegramUser = GetUserFromUpdate(update);
@@ -80,11 +80,6 @@ public partial class UpdateHandler : IUpdateHandler
         }
     }
 
-    private object GetUserIdFromUpdate(Update update)
-    {
-        throw new NotImplementedException();
-    }
-
     private User GetUserFromUpdate(Update update)
     => update.Type switch
     {
@@ -94,5 +89,4 @@ public partial class UpdateHandler : IUpdateHandler
         Telegram.Bot.Types.Enums.UpdateType.InlineQuery => update.InlineQuery.From,
         _=> throw new Exception("We don't support update type {update.Type}yet")
     };
-
 }
