@@ -4,7 +4,9 @@ using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+
 namespace DurgerKing.Services;
+
 public partial class UpdateHandler : IUpdateHandler
 {
     private readonly ILogger<UpdateHandler> logger;
@@ -31,7 +33,7 @@ public partial class UpdateHandler : IUpdateHandler
             update.Type,
             update.Message?.From?.Id);
 
-        await UpsetUsersAsync(update, cancellationToken);
+        await UpsertUsersAsync(update, cancellationToken);
 
         var handleTask = update.Type switch
         {
@@ -49,7 +51,7 @@ public partial class UpdateHandler : IUpdateHandler
         }
     }
 
-    private async Task UpsetUsersAsync(Update update, CancellationToken cancellationToken)
+    private async Task UpsertUsersAsync(Update update, CancellationToken cancellationToken)
     { 
         var telegramUser = GetUserFromUpdate(update);
         using(var scope = serviceScopeFactory.CreateScope())
