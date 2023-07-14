@@ -89,6 +89,6 @@ public partial class UpdateHandler : IUpdateHandler
             Telegram.Bot.Types.Enums.UpdateType.EditedMessage => update.EditedMessage.From,
             Telegram.Bot.Types.Enums.UpdateType.CallbackQuery => update.CallbackQuery.From,
             Telegram.Bot.Types.Enums.UpdateType.InlineQuery => update.InlineQuery.From,
-            _=> throw new Exception("We don't support update type {update.Type}yet")
-        };
+            _ => throw new Exception("We don't support update type {update.Type} yet") 
+        };   
 }
