@@ -83,12 +83,12 @@ public partial class UpdateHandler : IUpdateHandler
     }
 
     private User GetUserFromUpdate(Update update)
-    => update.Type switch
-    {
-        Telegram.Bot.Types.Enums.UpdateType.Message => update.Message.From,
-        Telegram.Bot.Types.Enums.UpdateType.EditedMessage => update.EditedMessage.From,
-        Telegram.Bot.Types.Enums.UpdateType.CallbackQuery => update.CallbackQuery.From,
-        Telegram.Bot.Types.Enums.UpdateType.InlineQuery => update.InlineQuery.From,
-        _=> throw new Exception("We don't support update type {update.Type}yet")
-    };
+        => update.Type switch
+        {
+            Telegram.Bot.Types.Enums.UpdateType.Message => update.Message.From,
+            Telegram.Bot.Types.Enums.UpdateType.EditedMessage => update.EditedMessage.From,
+            Telegram.Bot.Types.Enums.UpdateType.CallbackQuery => update.CallbackQuery.From,
+            Telegram.Bot.Types.Enums.UpdateType.InlineQuery => update.InlineQuery.From,
+            _=> throw new Exception("We don't support update type {update.Type}yet")
+        };
 }
