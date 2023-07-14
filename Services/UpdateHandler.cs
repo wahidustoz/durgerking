@@ -3,13 +3,15 @@ using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 
 namespace DurgerKing.Services;
 
-public class UpdateHandler : IUpdateHandler
+public partial class UpdateHandler : IUpdateHandler
 {
     private readonly ILogger<UpdateHandler> logger;
     private readonly IServiceScopeFactory serviceScopeFactory;
+
     public UpdateHandler(
         ILogger<UpdateHandler> logger,
         IServiceScopeFactory serviceScopeFactory)
@@ -17,11 +19,13 @@ public class UpdateHandler : IUpdateHandler
         this.logger = logger;
         this.serviceScopeFactory = serviceScopeFactory;
     }
+
     public Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
     {
         logger.LogError(exception, "Polling error happened.");
         return Task.CompletedTask;
     }
+
     public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
         logger.LogInformation(
@@ -29,12 +33,28 @@ public class UpdateHandler : IUpdateHandler
             update.Type,
             update.Message?.From?.Id);
 
-        await UpsetUserAsync(update, cancellationToken);
+        await UpsertUsersAsync(update, cancellationToken);
+
+        var handleTask = update.Type switch
+        {
+            UpdateType.Message => HandleMessageAsync(botClient, update.Message, cancellationToken),
+            _ => throw new NotImplementedException()
+        };
+
+        try
+        {
+            await handleTask;
+        }
+        catch(Exception ex)
+        {
+            await HandlePollingErrorAsync(botClient, ex, cancellationToken);
+        }
     }
-    private async Task UpsetUserAsync(Update update, CancellationToken cancellationToken)
-    {
+
+    private async Task UpsertUsersAsync(Update update, CancellationToken cancellationToken)
+    { 
         var telegramUser = GetUserFromUpdate(update);
-        using (var scope = serviceScopeFactory.CreateScope())
+        using(var scope = serviceScopeFactory.CreateScope())
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<IAppDbContext>();
             var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == telegramUser.Id);
@@ -56,12 +76,12 @@ public class UpdateHandler : IUpdateHandler
                 user.Fullname = $"{telegramUser.FirstName} {telegramUser.LastName}";
                 user.Username = telegramUser.Username;
                 user.Language = telegramUser.LanguageCode;
-                user.ModifiedAt = DateTime.UtcNow;
-                logger.LogInformation("New user with ID {id} updated.", telegramUser.Id);
+                logger.LogInformation("New user with ID {id} update.", telegramUser.Id);
             }
             await dbContext.SaveChangesAsync(cancellationToken);
         }
     }
+
     private User GetUserFromUpdate(Update update)
         => update.Type switch
         {
@@ -69,6 +89,6 @@ public class UpdateHandler : IUpdateHandler
             Telegram.Bot.Types.Enums.UpdateType.EditedMessage => update.EditedMessage.From,
             Telegram.Bot.Types.Enums.UpdateType.CallbackQuery => update.CallbackQuery.From,
             Telegram.Bot.Types.Enums.UpdateType.InlineQuery => update.InlineQuery.From,
-            _ => throw new Exception("We don't support update type {update.Type} yet") 
-        };   
+            _=> throw new Exception("We don't support update type {update.Type}yet")
+        };
 }
