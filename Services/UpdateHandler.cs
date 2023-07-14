@@ -115,5 +115,4 @@ public partial class UpdateHandler : IUpdateHandler
             replyMarkup: settingkeyboard,
             cancellationToken: cancellationToken);
     }
-    
 }
