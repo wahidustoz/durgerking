@@ -108,6 +108,7 @@ public partial class UpdateHandler : IUpdateHandler
                 }
             }
         );
+        
         await botClient.SendTextMessageAsync(
             chatId: update.Message.Chat.Id,
             text: "Choose an option to update your settings:",
