@@ -11,8 +11,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace durgerking.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20230715224940_Product-id-guid")]
-    partial class Productidguid
+    [Migration("20230715235320_CreateProduct")]
+    partial class CreateProduct
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
