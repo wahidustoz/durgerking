@@ -14,7 +14,7 @@ public partial class UpdateHandler
 
         if(message.Text == "/start" || message.Text == "/help")
             await SendGreetingMessageAsycn(botClient, message, cancellationToken);
-        else if (message.Text == "/settings")
+        else if(message.Text == "/settings")
             await SelectSettingsAsync(botClient, message, cancellationToken);
     }
 
