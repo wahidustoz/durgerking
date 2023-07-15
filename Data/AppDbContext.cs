@@ -5,6 +5,7 @@ public class AppDbContext : DbContext, IAppDbContext
 {
     public DbSet<User> Users { get; set; }
     public DbSet<Category> Categories { get; set; }
+    public DbSet<Product> Products { get; set; }
 
     public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options) { }
@@ -69,17 +70,9 @@ public class AppDbContext : DbContext, IAppDbContext
             .IsRequired();
 
         modelBuilder.Entity<Product>()
-            .Property(e => e.CreatedAt)
-            .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-        modelBuilder.Entity<Product>()
-            .Property(e => e.ModifiedAt)
-            .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-        modelBuilder.Entity<Category>()
-            .HasMany(u => u.Products)
-            .WithOne(c => c.Category)
-            .HasPrincipalKey(c => c.Id)
+            .HasOne(u => u.Category)
+            .WithMany()
+            .HasForeignKey(c=>c.CategoryId)
             .IsRequired();
 
         base.OnModelCreating(modelBuilder);
