@@ -12,7 +12,7 @@ public partial class UpdateHandler
             ?? message.From.FirstName;
         logger.LogInformation("Reieved message from {username}", username);
 
-        if (message.Text == "/start" || message.Text == "/help")
+        if(message.Text == "/start" || message.Text == "/help")
             await SendGreetingMessageAsycn(botClient, message, cancellationToken);
         else if (message.Text == "/settings")
             await SelectSettingsAsync(botClient, message, cancellationToken);
