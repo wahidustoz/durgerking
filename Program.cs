@@ -6,6 +6,7 @@ using Telegram.Bot.Polling;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddControllers();
 builder.Services.AddTransient<IUpdateHandler, UpdateHandler>();
 builder.Services.AddHostedService<BotStartingBackgroundService>();
 builder.Services.AddSingleton<ITelegramBotClient, TelegramBotClient>(
@@ -15,5 +16,5 @@ builder.Services.AddDbContext<IAppDbContext, AppDbContext>(
     options => options.UseNpgsql(builder.Configuration.GetConnectionString("PostgresConnection")));
 
 var app = builder.Build();
-
+app.MapControllers();
 app.Run();
