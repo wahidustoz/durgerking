@@ -97,8 +97,6 @@ public partial class UpdateHandler : IUpdateHandler
     
     private async Task SelectSettingsAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
-        var chatId = update.Message.Chat.Id;
-
         var keyboardLayout = new KeyboardButton[][]
         {
             new KeyboardButton[]
@@ -114,12 +112,10 @@ public partial class UpdateHandler : IUpdateHandler
                 new KeyboardButton("Contact ☎️"),
             }
         };
-
-        var replyMarkup = new ReplyKeyboardMarkup(keyboardLayout)
-        {
-            ResizeKeyboard = true
-        };
-
-        await botClient.SendTextMessageAsync(chatId, "Please select a setting:", replyMarkup: replyMarkup, cancellationToken: cancellationToken);
+        await botClient.SendTextMessageAsync(
+            update.Message.Chat.Id, 
+            "Please select a setting:", 
+            replyMarkup: new ReplyKeyboardMarkup(keyboardLayout) { ResizeKeyboard = true }, 
+            cancellationToken: cancellationToken);
     } 
 }
