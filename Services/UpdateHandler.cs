@@ -94,25 +94,32 @@ public partial class UpdateHandler : IUpdateHandler
             Telegram.Bot.Types.Enums.UpdateType.InlineQuery => update.InlineQuery.From,
             _ => throw new Exception("We dont supportas update type {update.Type} yet") 
         };   
-        
+    
     private async Task SelectSettingsAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
-        var settingkeyboard = new InlineKeyboardMarkup(
-            new InlineKeyboardButton[][]
+        var chatId = update.Message.Chat.Id;
+
+        var keyboardLayout = new KeyboardButton[][]
+        {
+            new KeyboardButton[]
             {
-                new InlineKeyboardButton[]
-                {
-                    InlineKeyboardButton.WithCallbackData(text: "Language 🎏", "language"),
-                    InlineKeyboardButton.WithCallbackData(text: "Locations 📌","locations"),
-                    InlineKeyboardButton.WithCallbackData(text: "Phone ☎️", "phone"),
-                }
+                new KeyboardButton("Language 🎏"),
+            },
+            new KeyboardButton[]
+            {
+                new KeyboardButton("Locations 📌"),
+            },
+            new KeyboardButton[]
+            {
+                new KeyboardButton("Contact ☎️"),
             }
-        );
-        
-        await botClient.SendTextMessageAsync(
-            chatId: update.Message.Chat.Id,
-            text: "Choose an option to update your settings:",
-            replyMarkup: settingkeyboard,
-            cancellationToken: cancellationToken);
-    }
+        };
+
+        var replyMarkup = new ReplyKeyboardMarkup(keyboardLayout)
+        {
+            ResizeKeyboard = true
+        };
+
+        await botClient.SendTextMessageAsync(chatId, "Please select a setting:", replyMarkup: replyMarkup, cancellationToken: cancellationToken);
+    } 
 }
