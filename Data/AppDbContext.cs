@@ -54,6 +54,34 @@ public class AppDbContext : DbContext, IAppDbContext
                 new { Id = 4, Name = "Salad" },
                 new { Id = 5, Name = "Set" });
 
+        // Product Entity
+        modelBuilder.Entity<Product>()
+            .HasKey(c => c.Id);
+
+        modelBuilder.Entity<Product>()
+            .Property(e => e.Name)
+            .HasMaxLength(256)
+            .IsRequired();
+
+        modelBuilder.Entity<Product>()
+            .Property(e => e.Description)
+            .HasMaxLength(1024)
+            .IsRequired();
+
+        modelBuilder.Entity<Product>()
+            .Property(e => e.CreatedAt)
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+        modelBuilder.Entity<Product>()
+            .Property(e => e.ModifiedAt)
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+        modelBuilder.Entity<Category>()
+            .HasMany(u => u.Products)
+            .WithOne(c => c.Category)
+            .HasPrincipalKey(c => c.Id)
+            .IsRequired();
+
         base.OnModelCreating(modelBuilder);
     }
 
