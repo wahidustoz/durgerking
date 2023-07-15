@@ -29,11 +29,11 @@ public partial class UpdateHandler : IUpdateHandler
     public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
         logger.LogInformation(
-            "Update {updateType} received from {userId}.",
+            "Update {updateType} received  from {userId}.",
             update.Type,
             update.Message?.From?.Id);
 
-        await UpsertUsersAsync(update, cancellationToken);
+        await UpsertUserAsync(update, cancellationToken);
 
         var handleTask = update.Type switch
         {
@@ -51,8 +51,8 @@ public partial class UpdateHandler : IUpdateHandler
         }
     }
 
-    private async Task UpsertUsersAsync(Update update, CancellationToken cancellationToken)
-    { 
+    private async Task UpsertUserAsync(Update update, CancellationToken cancellationToken)
+    {
         var telegramUser = GetUserFromUpdate(update);
         using(var scope = serviceScopeFactory.CreateScope())
         {
@@ -76,7 +76,8 @@ public partial class UpdateHandler : IUpdateHandler
                 user.Fullname = $"{telegramUser.FirstName} {telegramUser.LastName}";
                 user.Username = telegramUser.Username;
                 user.Language = telegramUser.LanguageCode;
-                logger.LogInformation("New user with ID {id} update.", telegramUser.Id);
+                user.ModifiedAt = DateTime.UtcNow;
+                logger.LogInformation("user with ID {id} updated.", telegramUser.Id);
             }
             await dbContext.SaveChangesAsync(cancellationToken);
         }
@@ -89,6 +90,6 @@ public partial class UpdateHandler : IUpdateHandler
             Telegram.Bot.Types.Enums.UpdateType.EditedMessage => update.EditedMessage.From,
             Telegram.Bot.Types.Enums.UpdateType.CallbackQuery => update.CallbackQuery.From,
             Telegram.Bot.Types.Enums.UpdateType.InlineQuery => update.InlineQuery.From,
-            _=> throw new Exception("We don't support update type {update.Type}yet")
-        };
+            _ => throw new Exception("We dont supportas update type {update.Type} yet") 
+        };   
 }

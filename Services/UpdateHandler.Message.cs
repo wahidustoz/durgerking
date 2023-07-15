@@ -1,5 +1,6 @@
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace DurgerKing.Services;
 
@@ -13,6 +14,8 @@ public partial class UpdateHandler
 
         if(message.Text == "/start" || message.Text == "/help")
             await SendGreetingMessageAsycn(botClient, message, cancellationToken);
+        else if(message.Text == "/settings")
+            await SelectSettingsAsync(botClient, message, cancellationToken);
     }
 
     private async Task SendGreetingMessageAsycn(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
@@ -26,4 +29,19 @@ public partial class UpdateHandler
             chatId: message.Chat.Id,
             cancellationToken: cancellationToken);
     }
+
+    private async Task SelectSettingsAsync(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
+    {
+        var keyboardLayout = new KeyboardButton[][]
+        {
+            new KeyboardButton[] { "Language 🎏", "Locations 📌", },
+            new KeyboardButton[] { "Contact ☎️" },
+        };
+
+        await botClient.SendTextMessageAsync(
+            message.Chat.Id, 
+            "Please select a setting:", 
+            replyMarkup: new ReplyKeyboardMarkup(keyboardLayout) { ResizeKeyboard = true }, 
+            cancellationToken: cancellationToken);
+    } 
 }
