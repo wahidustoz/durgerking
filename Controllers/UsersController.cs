@@ -19,7 +19,10 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetUsers([FromQuery] string search, [FromQuery] int offset = 0, [FromQuery] int limit = 25)
+    public async Task<IActionResult> GetUsers(
+        [FromQuery] string search, 
+        [FromQuery] int offset = 0, 
+        [FromQuery] int limit = 25)
     {
         var usersQuery = dbContext.Users.AsQueryable();
         if(false == string.IsNullOrWhiteSpace(search))
