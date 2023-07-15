@@ -142,16 +142,26 @@ namespace durgerking.Data.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("numeric");
 
-                    b.Property<int?>("ProductId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
 
+                    b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("ProductProduct", b =>
+                {
+                    b.Property<int>("ItemsId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("ItemsId", "ProductId");
+
                     b.HasIndex("ProductId");
 
-                    b.ToTable("Products");
+                    b.ToTable("ProductProduct");
                 });
 
             modelBuilder.Entity("Product", b =>
@@ -162,16 +172,22 @@ namespace durgerking.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Product", null)
-                        .WithMany("Items")
-                        .HasForeignKey("ProductId");
-
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("Product", b =>
+            modelBuilder.Entity("ProductProduct", b =>
                 {
-                    b.Navigation("Items");
+                    b.HasOne("Product", null)
+                        .WithMany()
+                        .HasForeignKey("ItemsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

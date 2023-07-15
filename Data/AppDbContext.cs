@@ -75,6 +75,10 @@ public class AppDbContext : DbContext, IAppDbContext
             .HasForeignKey(c=>c.CategoryId)
             .IsRequired();
 
+         modelBuilder.Entity<Product>()
+            .HasMany(u => u.Items)
+            .WithMany();
+
         base.OnModelCreating(modelBuilder);
     }
 
