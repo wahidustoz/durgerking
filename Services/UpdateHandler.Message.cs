@@ -8,9 +8,8 @@ public partial class UpdateHandler
 {
     public async Task HandleMessageAsync(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
     {
-        var username = message.From?.Username
-            ?? message.From.FirstName;
-        logger.LogInformation("Reieved message from {username}", username);
+        var username = message.From?.Username ?? message.From.FirstName;
+        logger.LogInformation("Received message from {username}", username);
 
         if(message.Text == "/start" || message.Text == "/help")
             await SendGreetingMessageAsycn(botClient, message, cancellationToken);
