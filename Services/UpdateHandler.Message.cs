@@ -15,6 +15,8 @@ public partial class UpdateHandler
             await SendGreetingMessageAsycn(botClient, message, cancellationToken);
         else if(message.Text == "/settings")
             await SelectSettingsAsync(botClient, message, cancellationToken);
+        else if (message.Text == "Language 🎏")
+            await SelectLanguageAsync(botClient,message,cancellationToken);
     }
 
     private async Task SendGreetingMessageAsycn(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
