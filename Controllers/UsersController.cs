@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 namespace DurgerKing.Controllers;
 
 [ApiController]
-[Route("/api/[controller]")]
+[Route("api/[controller]")]
 public class UsersController : ControllerBase
 {
     private readonly IAppDbContext dbContext;
@@ -19,10 +19,9 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetUsers([FromQuery] string search, int offset = 0, int limit = 25)
+    public async Task<IActionResult> GetUsers([FromQuery] string search, [FromQuery] int offset = 0, [FromQuery] int limit = 25)
     {
         var usersQuery = dbContext.Users.AsQueryable();
-
         if(false == string.IsNullOrWhiteSpace(search))
             usersQuery = usersQuery.Where(u => 
                 u.Username.ToLower().Contains(search.ToLower()) ||
@@ -34,6 +33,7 @@ public class UsersController : ControllerBase
             .Select(u => new GetUserDto(u))
             .ToListAsync();
         var result = new PaginatedList<GetUserDto>(users, usersQuery.Count(), offset + 1, limit);
+
         return Ok(result);
     }
 
@@ -45,6 +45,7 @@ public class UsersController : ControllerBase
 
         if(user is null)
             return NotFound();
+            
         return Ok(new GetUserDto(user));
     }
 }
