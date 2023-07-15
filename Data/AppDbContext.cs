@@ -5,6 +5,7 @@ public class AppDbContext : DbContext, IAppDbContext
 {
     public DbSet<User> Users { get; set; }
     public DbSet<Category> Categories { get; set; }
+
     public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options) { }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -31,11 +32,11 @@ public class AppDbContext : DbContext, IAppDbContext
 
         modelBuilder.Entity<User>()
             .Property(e => e.CreatedAt)
-            .HasDefaultValue(DateTime.UtcNow);
+            .HasDefaultValue(new DateTime(2023, 7, 10, 11, 29, 16, 314, DateTimeKind.Utc).AddTicks(6142));
 
         modelBuilder.Entity<User>()
             .Property(e => e.ModifiedAt)
-            .HasDefaultValue(DateTime.UtcNow);
+            .HasDefaultValue(new DateTime(2023, 7, 10, 11, 29, 16, 314, DateTimeKind.Utc).AddTicks(6376));
 
         modelBuilder.Entity<Category>()
             .HasKey(c => c.Id);

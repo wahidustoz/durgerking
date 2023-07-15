@@ -77,7 +77,7 @@ namespace durgerking.Data.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
-                        .HasDefaultValue(new DateTime(2023, 7, 15, 12, 37, 38, 142, DateTimeKind.Utc).AddTicks(7779));
+                        .HasDefaultValue(new DateTime(2023, 7, 10, 11, 29, 16, 314, DateTimeKind.Utc).AddTicks(6142));
 
                     b.Property<string>("Fullname")
                         .IsRequired()
@@ -91,7 +91,7 @@ namespace durgerking.Data.Migrations
                     b.Property<DateTime>("ModifiedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
-                        .HasDefaultValue(new DateTime(2023, 7, 15, 12, 37, 38, 142, DateTimeKind.Utc).AddTicks(9354));
+                        .HasDefaultValue(new DateTime(2023, 7, 10, 11, 29, 16, 314, DateTimeKind.Utc).AddTicks(6376));
 
                     b.Property<string>("Phone")
                         .HasMaxLength(20)
