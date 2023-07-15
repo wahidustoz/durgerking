@@ -5,6 +5,7 @@ public class AppDbContext : DbContext, IAppDbContext
 {
     public DbSet<User> Users { get; set; }
     public DbSet<Category> Categories { get; set; }
+    public DbSet<Product> Products { get; set; }
 
     public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options) { }
@@ -53,6 +54,30 @@ public class AppDbContext : DbContext, IAppDbContext
                 new { Id = 3, Name = "Drink" },
                 new { Id = 4, Name = "Salad" },
                 new { Id = 5, Name = "Set" });
+
+        // Product Entity
+        modelBuilder.Entity<Product>()
+            .HasKey(c => c.Id);
+
+        modelBuilder.Entity<Product>()
+            .Property(e => e.Name)
+            .HasMaxLength(256)
+            .IsRequired();
+
+        modelBuilder.Entity<Product>()
+            .Property(e => e.Description)
+            .HasMaxLength(1024)
+            .IsRequired();
+
+        modelBuilder.Entity<Product>()
+            .HasOne(u => u.Category)
+            .WithMany()
+            .HasForeignKey(c=>c.CategoryId)
+            .IsRequired();
+
+         modelBuilder.Entity<Product>()
+            .HasMany(u => u.Items)
+            .WithMany();
 
         base.OnModelCreating(modelBuilder);
     }
