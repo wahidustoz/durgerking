@@ -53,7 +53,7 @@ public partial class UpdateHandler : IUpdateHandler
     }
 
     private async Task UpsertUserAsync(Update update, CancellationToken cancellationToken)
-    { 
+    {
         var telegramUser = GetUserFromUpdate(update);
         using(var scope = serviceScopeFactory.CreateScope())
         {
@@ -99,18 +99,8 @@ public partial class UpdateHandler : IUpdateHandler
     {
         var keyboardLayout = new KeyboardButton[][]
         {
-            new KeyboardButton[]
-            {
-                new KeyboardButton("Language 🎏"),
-            },
-            new KeyboardButton[]
-            {
-                new KeyboardButton("Locations 📌"),
-            },
-            new KeyboardButton[]
-            {
-                new KeyboardButton("Contact ☎️"),
-            }
+            new KeyboardButton[] { "Language 🎏", "Locations 📌", },
+            new KeyboardButton[] { "Contact ☎️" },
         };
         await botClient.SendTextMessageAsync(
             update.Message.Chat.Id, 
