@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.ReplyMarkups;
 using Telegram.Bot.Types.Enums;
 
 namespace DurgerKing.Services;
@@ -77,7 +76,6 @@ public partial class UpdateHandler : IUpdateHandler
                 user.Fullname = $"{telegramUser.FirstName} {telegramUser.LastName}";
                 user.Username = telegramUser.Username;
                 user.Language = telegramUser.LanguageCode;
-                user.CreatedAt = DateTime.UtcNow;
                 user.ModifiedAt = DateTime.UtcNow;
                 logger.LogInformation("user with ID {id} updated.", telegramUser.Id);
             }
@@ -94,18 +92,4 @@ public partial class UpdateHandler : IUpdateHandler
             Telegram.Bot.Types.Enums.UpdateType.InlineQuery => update.InlineQuery.From,
             _ => throw new Exception("We dont supportas update type {update.Type} yet") 
         };   
-    
-    private async Task SelectSettingsAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
-    {
-        var keyboardLayout = new KeyboardButton[][]
-        {
-            new KeyboardButton[] { "Language 🎏", "Locations 📌", },
-            new KeyboardButton[] { "Contact ☎️" },
-        };
-        await botClient.SendTextMessageAsync(
-            update.Message.Chat.Id, 
-            "Please select a setting:", 
-            replyMarkup: new ReplyKeyboardMarkup(keyboardLayout) { ResizeKeyboard = true }, 
-            cancellationToken: cancellationToken);
-    } 
 }
