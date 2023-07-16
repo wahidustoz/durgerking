@@ -1,3 +1,5 @@
+using DurgerKing.Entity.Data;
+using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -16,7 +18,7 @@ public partial class UpdateHandler
         else if(message.Text == "/settings")
             await SelectSettingsAsync(botClient, message, cancellationToken);
         else if (message.Text == "Language 🎏")
-            await SelectLanguageAsync(botClient,message,cancellationToken);
+            await SendSelectLanguageInlineAsync(botClient,message.From.Id,message.Chat.Id,cancellationToken);
     }
 
     private async Task SendGreetingMessageAsycn(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
@@ -50,5 +52,36 @@ public partial class UpdateHandler
             "Please select a setting:",
             replyMarkup: new ReplyKeyboardMarkup(keyboardLayout) { ResizeKeyboard = true },
             cancellationToken: cancellationToken);
-    }
+    } 
+
+    public async Task SendSelectLanguageInlineAsync(ITelegramBotClient client,long chatId,long userId,CancellationToken cancellationToken)
+    {
+        var user = await dbContext.Users.FirstAsync(u => u.Id == userId,cancellationToken);
+        var inlineKeyboard = new InlineKeyboardMarkup(new[]
+        { 
+            new[]
+            {
+                InlineKeyboardButton.WithCallbackData(
+                     text: $"{GetCheckmarkOrEmpty(user.Language, "uz")}O'zbekcha🇺🇿",
+                     callbackData : "language.uz"),
+                InlineKeyboardButton.WithCallbackData(
+                     text: $"{GetCheckmarkOrEmpty(user.Language, "en")}English🇬🇧",
+                     callbackData : "language.en"),
+                InlineKeyboardButton.WithCallbackData(
+                     text: $"{GetCheckmarkOrEmpty(user.Language, "ru")}Русский🇷🇺",
+                     callbackData : "language.ru")
+          
+            }
+        });
+        await client.SendTextMessageAsync(
+                chatId : chatId,
+                text: "Please Select a language",
+                replyMarkup : inlineKeyboard,
+                cancellationToken : cancellationToken);
+            }
+
+        private static string GetCheckmarkOrEmpty(string userLanguage, string languageCode)
+            => string.Equals(userLanguage, languageCode, StringComparison.InvariantCultureIgnoreCase)
+            ? "✅"
+            :string.Empty;
 }
