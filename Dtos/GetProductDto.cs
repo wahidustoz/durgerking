@@ -24,4 +24,5 @@ public class GetProductDto
     public DateTime CreatedAt { get; set; }
     public DateTime ModifiedAt { get; set; }
     public int CategoryId { get; set; }
+    public string Category { get; set; }
 }

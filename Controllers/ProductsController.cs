@@ -28,14 +28,15 @@ public class ProductsController : ControllerBase
             Price = productdto.Price,
             DiscountPercentage = productdto.DiscountPercentage,
             IsActive = productdto.IsActive,
-            CreatedAt = productdto.CreatedAt,
-            ModifiedAt = productdto.ModifiedAt,
+            CreatedAt = DateTime.UtcNow,
+            ModifiedAt = DateTime.UtcNow,
             CategoryId = productdto.CategoryId
         });
 
         await dbContext.SaveChangesAsync();
 
-        return Ok(created.Entity.Id);
+        return CreatedAtAction("GetProduct", new { id = created.Entity.Id }, productdto);
+
     }
 
     [HttpGet]
@@ -88,8 +89,6 @@ public class ProductsController : ControllerBase
         product.Price = updateProduct.Price;
         product.DiscountPercentage = updateProduct.DiscountPercentage;
         product.IsActive = updateProduct.IsActive;
-        product.CreatedAt = updateProduct.CreatedAt;
-        product.ModifiedAt = updateProduct.ModifiedAt;
         product.CategoryId = updateProduct.CategoryId;
 
         await dbContext.SaveChangesAsync();
