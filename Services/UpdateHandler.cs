@@ -11,6 +11,7 @@ public partial class UpdateHandler : IUpdateHandler
 {
     private readonly ILogger<UpdateHandler> logger;
     private readonly IServiceScopeFactory serviceScopeFactory;
+    private IAppDbContext dbContext;
 
     public UpdateHandler(
         ILogger<UpdateHandler> logger,
@@ -28,7 +29,10 @@ public partial class UpdateHandler : IUpdateHandler
 
     public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
-        logger.LogInformation(
+        using (var scope = serviceScopeFactory.CreateScope())
+        {
+            dbContext = scope.ServiceProvider.GetRequiredService<IAppDbContext>();    
+            logger.LogInformation(
             "Update {updateType} received  from {userId}.",
             update.Type,
             update.Message?.From?.Id);
@@ -38,6 +42,7 @@ public partial class UpdateHandler : IUpdateHandler
         var handleTask = update.Type switch
         {
             UpdateType.Message => HandleMessageAsync(botClient, update.Message, cancellationToken),
+            UpdateType.CallbackQuery => HandleCallBackQueryAsync(botClient, update.CallbackQuery, cancellationToken),
             _ => throw new NotImplementedException()
         };
 
@@ -49,47 +54,44 @@ public partial class UpdateHandler : IUpdateHandler
         {
             await HandlePollingErrorAsync(botClient, ex, cancellationToken);
         }
-    }
+    }}
 
     private async Task UpsertUserAsync(Update update, CancellationToken cancellationToken)
     {
         var telegramUser = GetUserFromUpdate(update);
-        using(var scope = serviceScopeFactory.CreateScope())
+
+        var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == telegramUser.Id);
+        if(user is null)
         {
-            var dbContext = scope.ServiceProvider.GetRequiredService<IAppDbContext>();
-            var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == telegramUser.Id);
-            if(user is null)
+            dbContext.Users.Add(new DurgerKing.Entity.User
             {
-                dbContext.Users.Add(new DurgerKing.Entity.User
-                {
-                    Id = telegramUser.Id,
-                    Fullname = $"{telegramUser.FirstName} {telegramUser.LastName}",
-                    Username = telegramUser.Username,
-                    Language = telegramUser.LanguageCode,
-                    CreatedAt = DateTime.UtcNow,
-                    ModifiedAt = DateTime.UtcNow
-                });
-                logger.LogInformation("New user with ID {id} added.", telegramUser.Id);
-            }
-            else
-            {
-                user.Fullname = $"{telegramUser.FirstName} {telegramUser.LastName}";
-                user.Username = telegramUser.Username;
-                user.Language = telegramUser.LanguageCode;
-                user.ModifiedAt = DateTime.UtcNow;
-                logger.LogInformation("user with ID {id} updated.", telegramUser.Id);
-            }
-            await dbContext.SaveChangesAsync(cancellationToken);
+                Id = telegramUser.Id,
+                Fullname = $"{telegramUser.FirstName} {telegramUser.LastName}",
+                Username = telegramUser.Username,
+                Language = telegramUser.LanguageCode,
+                CreatedAt = DateTime.UtcNow,
+                ModifiedAt = DateTime.UtcNow
+            });
+            logger.LogInformation("New user with ID {id} added.", telegramUser.Id);
+         }
+        else
+         {
+            user.Fullname = $"{telegramUser.FirstName} {telegramUser.LastName}";
+            user.Username = telegramUser.Username;
+            user.Language = telegramUser.LanguageCode;
+            user.ModifiedAt = DateTime.UtcNow;
+            logger.LogInformation("user with ID {id} updated.", telegramUser.Id);
         }
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 
     private User GetUserFromUpdate(Update update)
         => update.Type switch
         {
-            Telegram.Bot.Types.Enums.UpdateType.Message => update.Message.From,
-            Telegram.Bot.Types.Enums.UpdateType.EditedMessage => update.EditedMessage.From,
-            Telegram.Bot.Types.Enums.UpdateType.CallbackQuery => update.CallbackQuery.From,
-            Telegram.Bot.Types.Enums.UpdateType.InlineQuery => update.InlineQuery.From,
+            UpdateType.Message => update.Message.From,
+            UpdateType.EditedMessage => update.EditedMessage.From,
+            UpdateType.CallbackQuery => update.CallbackQuery.From,
+            UpdateType.InlineQuery => update.InlineQuery.From,
             _ => throw new Exception("We dont supportas update type {update.Type} yet") 
         };   
 }
