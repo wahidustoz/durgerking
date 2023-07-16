@@ -73,15 +73,16 @@ public partial class UpdateHandler
           
             }
         });
+        
         await client.SendTextMessageAsync(
-                chatId : chatId,
-                text: "Please Select a language",
-                replyMarkup : inlineKeyboard,
-                cancellationToken : cancellationToken);
-            }
+            chatId : chatId,
+            text: "Please Select a language",
+            replyMarkup : inlineKeyboard,
+            cancellationToken : cancellationToken);
+    }
 
-        private static string GetCheckmarkOrEmpty(string userLanguage, string languageCode)
-            => string.Equals(userLanguage, languageCode, StringComparison.InvariantCultureIgnoreCase)
-            ? "✅"
-            :string.Empty;
+    private static string GetCheckmarkOrEmpty(string userLanguage, string languageCode)
+        => string.Equals(userLanguage, languageCode, StringComparison.InvariantCultureIgnoreCase)
+        ? "✅"
+        :string.Empty;
 }
