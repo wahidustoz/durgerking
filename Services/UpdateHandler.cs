@@ -78,7 +78,6 @@ public partial class UpdateHandler : IUpdateHandler
          {
             user.Fullname = $"{telegramUser.FirstName} {telegramUser.LastName}";
             user.Username = telegramUser.Username;
-            user.Language = telegramUser.LanguageCode;
             user.ModifiedAt = DateTime.UtcNow;
             logger.LogInformation("user with ID {id} updated.", telegramUser.Id);
         }
