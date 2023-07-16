@@ -35,7 +35,7 @@ public class ProductsController : ControllerBase
 
         await dbContext.SaveChangesAsync();
 
-        return CreatedAtAction("GetProduct", new { id = created.Entity.Id }, productdto);
+        return CreatedAtAction(nameof(GetProduct), new { id = created.Entity.Id }, productdto);
 
     }
 
@@ -93,7 +93,7 @@ public class ProductsController : ControllerBase
 
         await dbContext.SaveChangesAsync();
 
-        return Ok(product.Id);
+        return Ok();
     }
 
     [HttpDelete("{id}")]
