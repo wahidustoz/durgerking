@@ -108,4 +108,17 @@ public class ProductsController : ControllerBase
 
         return Ok();
     }
+
+    [HttpPost("{id}/set")]
+    public async Task<IActionResult> CreateSet (
+        [FromRoute] Guid id, 
+        [FromBody] IEnumerable<Guid> itemIds,
+        CancellationToken cancellationToken = default)
+    {
+        var product = await dbContext.Products
+            .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+
+        return Ok();
+
+    }
 }
