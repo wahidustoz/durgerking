@@ -54,6 +54,8 @@ public class ProductsController : ControllerBase
             .Skip(limit * offset)
             .Take(limit)
             .Where(u => u.IsActive == true)
+            .Include(u => u.Category)
+            .Include(u => u.Items)
             .Select(u => new GetProductDto(u))
             .ToListAsync();
 
@@ -66,7 +68,10 @@ public class ProductsController : ControllerBase
     public async Task<IActionResult> GetProduct([FromRoute] Guid id)
     {
         var product = await dbContext.Products
-            .FirstOrDefaultAsync(p => p.Id == id);
+            .Where(p => p.Id == id)
+            .Include(p => p.Category)
+            .Include(p => p.Items)
+            .FirstOrDefaultAsync();
 
         if (product is null)
             return NotFound();
