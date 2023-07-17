@@ -110,15 +110,67 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPost("{id}/set")]
-    public async Task<IActionResult> CreateSet (
-        [FromRoute] Guid id, 
+    public async Task<IActionResult> CreateSetDto(
+        [FromRoute] Guid id,
         [FromBody] IEnumerable<Guid> itemIds,
+        CreateSetDto setdto,
         CancellationToken cancellationToken = default)
+
     {
-        var product = await dbContext.Products
-            .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+        var product = await dbContext.Products 
+            .Where(a => a.Id == id && a.IsActive)
+            .Include(a => a.Category)
+            .FirstOrDefaultAsync(cancellationToken);
 
-        return Ok();
+        if(product is null)
+            return NotFound();
 
+        if(product.Category string.Equals(product.Category.Name, "set", ))
+        {
+
+        }
+    
+
+        if(itemIds.Contains(product.id))
+        {
+            return Conflict("This product already excist")
+        }
+        
+        itemIds.Add(product.id);
+
+        var products = await dbContext.Products.Items();
+        foreach (var item in itemIds)
+        {
+            var temp = products.FirstOrDefaultAsync(p => p.Id == item);
+            products.Items.Add(temp);
+        }
+
+        await dbContext.SaveChangesAsync();
+        
     }
+
+    // [HttpPost("{id}/set")]
+    // public async Task<IActionResult> CreateSet (
+    //     [FromRoute] Guid id, 
+    //     [FromBody] IEnumerable<Guid> itemIds,
+    //     CancellationToken cancellationToken = default)
+    // {
+    //     var product = await dbContext.Products
+    //         .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+
+    //     if(product is null || product is not IsActive)
+    //     {
+    //         return NotFound();
+    //     }
+
+    //     if(itemIds.Contains(product.id))
+    //     {
+    //         return Conflict("This product already excist")
+    //     }
+        
+    //     itemIds.Add(product.id)
+
+
+    //     return Ok();
+    // }
 }
