@@ -35,8 +35,7 @@ public class ProductsController : ControllerBase
 
         await dbContext.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(GetProduct), new { id = created.Entity.Id }, productdto);
-
+        return CreatedAtAction(nameof(GetProduct), new { id = created.Entity.Id }, new GetProductDto(created.Entity));
     }
 
     [HttpGet]
