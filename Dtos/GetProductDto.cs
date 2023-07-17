@@ -13,6 +13,11 @@ public class GetProductDto
         CreatedAt = entity.CreatedAt;
         ModifiedAt = entity.ModifiedAt;
         CategoryId = entity.CategoryId;
+        Category = entity.Category?.Name;
+
+        SetItems = entity.Items?.Any() is true
+            ? entity.Items.Select(i => new GetProductDto(i)) 
+            : null;
     }
     
     public Guid Id { get; set; }
@@ -25,4 +30,5 @@ public class GetProductDto
     public DateTime ModifiedAt { get; set; }
     public int CategoryId { get; set; }
     public string Category { get; set; }
+    public IEnumerable<GetProductDto> SetItems { get; set; }
 }
