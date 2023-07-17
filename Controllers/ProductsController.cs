@@ -122,26 +122,26 @@ public class ProductsController : ControllerBase
             .FirstOrDefaultAsync(cancellationToken);
 
         var setCategory = await dbContext.Categories
-            .FirstAsync(p => p.Name == "Set", cancellationToken)
+            .FirstAsync(p => p.Name == "Set", cancellationToken);
 
         if(product is null)
             return NotFound();
 
         if(product.CategoryId != setCategory.Id)
-            return BadRequest("This product does not have category {set}")
+            return BadRequest("This product does not have category {set}");
         
         var items = await dbContext.Products
             .Where(p => itemIds.Contains(p.Id))
             .ToListAsync(cancellationToken);
 
         if(items.Count < itemIds.Count())
-            return BadRequest("Some items do not exist in system")
+            return BadRequest("Some items do not exist in system");
         
         if(items.Any(a => a.CategoryId == setCategory.Id))
-            return BadRequest("Some items have category {set}. You cannot add them to set again")
+            return BadRequest("Some items have category {set}. You cannot add them to set again");
 
         product.Items = items;
-        await dbContext.SaveChangesAsync(cancellationToken)
+        await dbContext.SaveChangesAsync(cancellationToken);
 
         return Ok();
     }
