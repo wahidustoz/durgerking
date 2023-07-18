@@ -4,7 +4,6 @@ using DurgerKing.Entity;
 using DurgerKing.Entity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace DurgerKing.Controllers;
 
@@ -48,7 +47,7 @@ public class ProductsController : ControllerBase
     {
         var productsQuery = dbContext.Products.AsQueryable();
 
-        if (false == string.IsNullOrWhiteSpace(search))
+        if(false == string.IsNullOrWhiteSpace(search))
             productsQuery = productsQuery.Where(u =>
                 u.Name.ToLower().Contains(search.ToLower()));
 
@@ -75,7 +74,7 @@ public class ProductsController : ControllerBase
             .Include(p => p.Items)
             .FirstOrDefaultAsync();
 
-        if (product is null)
+        if(product is null)
             return NotFound();
 
         return Ok(new GetProductDto(product));
@@ -87,7 +86,7 @@ public class ProductsController : ControllerBase
         var product = await dbContext.Products
             .FirstOrDefaultAsync(x => x.Id == id);
 
-        if (product is null)
+        if(product is null)
             return NotFound();
 
         product.Name = updateProduct.Name;
@@ -107,7 +106,7 @@ public class ProductsController : ControllerBase
     {
         var product = await dbContext.Products.FirstOrDefaultAsync(u => u.Id == id);
 
-        if (product is null)
+        if(product is null)
             return NotFound();
 
         await dbContext.SaveChangesAsync();
@@ -130,20 +129,20 @@ public class ProductsController : ControllerBase
         var setCategory = await dbContext.Categories
             .FirstAsync(p => p.Name == "Set", cancellationToken);
 
-        if (product is null)
+        if(product is null)
             return NotFound();
 
-        if (product.CategoryId != setCategory.Id)
+        if(product.CategoryId != setCategory.Id)
             return BadRequest("This product does not have category {set}");
 
         var items = await dbContext.Products
             .Where(p => itemIds.Contains(p.Id))
             .ToListAsync(cancellationToken);
 
-        if (items.Count < itemIds.Count())
+        if(items.Count < itemIds.Count())
             return BadRequest("Some items do not exist in system");
 
-        if (items.Any(a => a.CategoryId == setCategory.Id))
+        if(items.Any(a => a.CategoryId == setCategory.Id))
             return BadRequest("Some items have category {set}. You cannot add them to set again");
 
         product.Items = items;
@@ -153,69 +152,54 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPost("{id}/media")]
-    public async Task<IActionResult> CreateProductMedias(
+    public async Task<IActionResult> CreateProductMedia(
         [FromRoute] Guid id,
         CancellationToken cancellationToken)
     {
-        var file = Request.Form;
-
-        if (file.Files.FirstOrDefault().Length > 5 * 1024 * 1024)
-            return BadRequest("File size exceeds the limit.");
-
-        if (file is null)
-            return NotFound();
-
-        Dictionary<string, string> content = new Dictionary<string, string>();
-
-        foreach (var keyValuePair in file)
-        {
-            content.Add(keyValuePair.Key, keyValuePair.Value);
-        }
-
         var product = await dbContext.Products
             .Where(a => a.Id == id && a.IsActive)
             .FirstOrDefaultAsync(cancellationToken);
 
-        if (product is null)
+        if(product is null)
+            return NotFound();
+        
+        var files = Request.Form.Files;
+
+        if(files?.Any() is not true)
             return NotFound();
 
-        string[] AllowedFileExtensions = { ".mp4", ".jpg", ".jpeg", ".png" };
+        if (files.Any(f => f.Length > 5 * 1024 * 1024))
+            return BadRequest("File size exceeds the limit.");
 
-        string fileExtension = Path.GetExtension(file.Files.FirstOrDefault().FileName);
-        if (!AllowedFileExtensions.Contains(fileExtension, StringComparer.OrdinalIgnoreCase))
+        var allowedFileExtensions = new[] { ".mp4", ".jpg", ".jpeg", ".png" };
+        
+        int order = 1;
+        foreach(var file in files)
         {
-            return BadRequest("Invalid file format. Allowed formats are: MP4, JPG, JPEG, PNG.");
+            string fileExtension = Path.GetExtension(file.FileName);
+            if(!allowedFileExtensions.Contains(fileExtension, StringComparer.OrdinalIgnoreCase))
+                return BadRequest("Invalid file format. Allowed formats are: MP4, JPG, JPEG, PNG.");
+            
+            var created = dbContext.ProductMedias.Add(new ProductMedia
+            {
+                Id = Guid.NewGuid(),
+                MimeType = file.ContentType,
+                Filename = file.Name,
+                Extension = fileExtension,
+                Order = order++,
+                Data = await GetFileData(file)
+            });
+
+            product.Media.Add(created.Entity);
         }
-
-        var created = dbContext.ProductMedias.Add(new ProductMedia
-        {
-            Id = Guid.NewGuid(),
-            MimeType = file.Files.FirstOrDefault().ContentType,
-            Filename = content.Values.FirstOrDefault(),
-            Extension = fileExtension,
-            Order = int.Parse(content.Values.LastOrDefault()),
-            Data = await GetFileData(file.Files.FirstOrDefault())
-        });
-
-        product.Media.Add(created.Entity);
 
         await dbContext.SaveChangesAsync();
 
-        return Ok("File upload successfully");
-
-    }
-
-    private async Task<byte[]> GetFileData(IFormFile formFile)
-    {
-        using (var memoryStream = new MemoryStream())
-        {
-            await formFile.CopyToAsync(memoryStream);
-            return memoryStream.ToArray();
-        }
+        return CreatedAtAction(nameof(GetProductMedia), new { id = product.Id }, product.Media);
     }
 
     [HttpGet("{id}/media")]
-    public async Task<IActionResult> GetProductMedias(
+    public async Task<IActionResult> GetProductMedia(
         [FromRoute] Guid id,
         [FromQuery] string search,
         CancellationToken cancellationToken)
@@ -225,19 +209,27 @@ public class ProductsController : ControllerBase
             .Include(p => p.Media)
             .FirstOrDefaultAsync(cancellationToken);
 
-        if (product is null)
+        if(product is null)
             return NotFound();
 
         var productMedias = product.Media
-            .Select(u => new GetProductMediasDto(u));
+            .Select(u => new GetProductMediumDto(u)
+            {
+                Url = Url.Action(
+                    action: nameof(GetProductMedium),
+                    controller: nameof(ProductsController),
+                    host: Request.Host.ToString(),
+                    protocol: Request.Protocol,
+                    values: new {MediaId = u.Id})
+            });
 
         return Ok(productMedias);
     }
 
-    [HttpGet("{productId}/media/{mediaId}")]
-    public async Task<IActionResult> GetProductMedia(
+    [HttpGet("{productId}/media/{mediumId}")]
+    public async Task<IActionResult> GetProductMedium(
         [FromRoute] Guid productId,
-        [FromRoute] Guid mediaId,
+        [FromRoute] Guid mediumId,
         CancellationToken cancellationToken)
     {
         var product = await dbContext.Products
@@ -245,22 +237,22 @@ public class ProductsController : ControllerBase
             .Include(p => p.Media)
             .FirstOrDefaultAsync(cancellationToken);
 
-        if (product is null)
+        if(product is null)
             return NotFound();
 
         var media = product.Media
-            .FirstOrDefault();
+            .FirstOrDefault(a => a.Id == mediumId);
 
-        if (media is null)
+        if(media is null)
             return NotFound();
 
         return File(media.Data, media.MimeType);
     }
 
-    [HttpDelete("{productId}/media/{mediaId}")]
-    public async Task<IActionResult> DeleteMedia(
+    [HttpDelete("{productId}/media/{mediumId}")]
+    public async Task<IActionResult> DeleteMedium(
         [FromRoute] Guid productId,
-        [FromRoute] Guid mediaId,
+        [FromRoute] Guid mediumId,
         CancellationToken cancellationToken)
     {
         var product = await dbContext.Products
@@ -268,18 +260,27 @@ public class ProductsController : ControllerBase
             .Include(p => p.Media)
             .FirstOrDefaultAsync(cancellationToken);
 
-        if (product is null)
+        if(product is null)
             return NotFound();
 
         var media = product.Media
-            .FirstOrDefault(a => a.Id == mediaId);
+            .FirstOrDefault(a => a.Id == mediumId);
 
-        if (media is null)
+        if(media is null)
             return NotFound();
 
         dbContext.ProductMedias.Remove(media);
         await dbContext.SaveChangesAsync(cancellationToken);
 
         return Ok();
+    }
+
+    private async Task<byte[]> GetFileData(IFormFile formFile)
+    {
+        using(var memoryStream = new MemoryStream())
+        {
+            await formFile.CopyToAsync(memoryStream);
+            return memoryStream.ToArray();
+        }
     }
 }
