@@ -28,7 +28,7 @@ public partial class UpdateHandler
         var replyKeyboardMarkup = new ReplyKeyboardMarkup(new KeyboardButton[][]
             {
                 new KeyboardButton[] { "Settings ⚙️", "Menu 🍔" },
-                new KeyboardButton[] { "Orders 📝" }, 
+                new KeyboardButton[] { "Orders 📝" }
             }) { ResizeKeyboard = true };
 
         await botClient.SendTextMessageAsync(
@@ -51,8 +51,8 @@ public partial class UpdateHandler
             "Please select a setting:",
             replyMarkup: new ReplyKeyboardMarkup(keyboardLayout) { ResizeKeyboard = true },
             cancellationToken: cancellationToken);
-    } 
- 
+    }
+    
     public async Task SendSelectLanguageInlineAsync(ITelegramBotClient client,long chatId,long userId,CancellationToken cancellationToken)
     {
         var user = await dbContext.Users.FirstAsync(u => u.Id == userId,cancellationToken);
@@ -79,7 +79,6 @@ public partial class UpdateHandler
             replyMarkup : inlineKeyboard,
             cancellationToken : cancellationToken);
     }
-
     private static string GetCheckmarkOrEmpty(string userLanguage, string languageCode)
         => string.Equals(userLanguage, languageCode, StringComparison.InvariantCultureIgnoreCase)
         ? "✅"

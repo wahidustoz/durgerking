@@ -14,6 +14,7 @@ public partial class UpdateHandler : IUpdateHandler
     private readonly ILogger<UpdateHandler> logger;
     private readonly IServiceScopeFactory serviceScopeFactory;
     private IStringLocalizer<Resources.Message> messageLocalizer;
+    private IStringLocalizer<Resources.Controls> controlLocalizer;
     private IAppDbContext dbContext;
 
     public UpdateHandler(
@@ -23,10 +24,8 @@ public partial class UpdateHandler : IUpdateHandler
     {
         this.logger = logger;
         this.serviceScopeFactory = serviceScopeFactory;
-
-        localizerFactory.Create(typeof(Resources.Message));
     }
-
+ 
     public Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
     {
         logger.LogError(exception, "Polling error happened.");
@@ -44,6 +43,7 @@ public partial class UpdateHandler : IUpdateHandler
         {
             dbContext = scope.ServiceProvider.GetRequiredService<IAppDbContext>();
             messageLocalizer = scope.ServiceProvider.GetRequiredService<IStringLocalizer<Resources.Message>>();
+            controlLocalizer = scope.ServiceProvider.GetRequiredService<IStringLocalizer<Resources.Controls>>();
 
             var user = await UpsertUserAsync(update, cancellationToken);
             CultureInfo.CurrentCulture = new CultureInfo(user.Language);
