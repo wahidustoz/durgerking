@@ -1,5 +1,7 @@
+using System.Globalization;
 using DurgerKing.Entity.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
@@ -11,14 +13,18 @@ public partial class UpdateHandler : IUpdateHandler
 {
     private readonly ILogger<UpdateHandler> logger;
     private readonly IServiceScopeFactory serviceScopeFactory;
+    private IStringLocalizer<Resources.Message> messageLocalizer;
     private IAppDbContext dbContext;
 
     public UpdateHandler(
         ILogger<UpdateHandler> logger,
-        IServiceScopeFactory serviceScopeFactory)
+        IServiceScopeFactory serviceScopeFactory,
+        IStringLocalizerFactory localizerFactory)
     {
         this.logger = logger;
         this.serviceScopeFactory = serviceScopeFactory;
+
+        localizerFactory.Create(typeof(Resources.Message));
     }
 
     public Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
@@ -29,15 +35,19 @@ public partial class UpdateHandler : IUpdateHandler
 
     public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
+        logger.LogInformation(
+        "Update {updateType} received  from {userId}.",
+        update.Type,
+        update.Message?.From?.Id);
+
         using (var scope = serviceScopeFactory.CreateScope())
         {
-            dbContext = scope.ServiceProvider.GetRequiredService<IAppDbContext>();    
-            logger.LogInformation(
-            "Update {updateType} received  from {userId}.",
-            update.Type,
-            update.Message?.From?.Id);
+            dbContext = scope.ServiceProvider.GetRequiredService<IAppDbContext>();
+            messageLocalizer = scope.ServiceProvider.GetRequiredService<IStringLocalizer<Resources.Message>>();
 
-        await UpsertUserAsync(update, cancellationToken);
+            var user = await UpsertUserAsync(update, cancellationToken);
+            CultureInfo.CurrentCulture = new CultureInfo(user.Language);
+            CultureInfo.CurrentUICulture = new CultureInfo(user.Language);
 
         var handleTask = update.Type switch
         {
@@ -56,14 +66,13 @@ public partial class UpdateHandler : IUpdateHandler
         }
     }}
 
-    private async Task UpsertUserAsync(Update update, CancellationToken cancellationToken)
+    private async Task<Entity.User> UpsertUserAsync(Update update, CancellationToken cancellationToken)
     {
         var telegramUser = GetUserFromUpdate(update);
-
-        var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == telegramUser.Id);
+        var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == telegramUser.Id, cancellationToken);
         if(user is null)
         {
-            dbContext.Users.Add(new DurgerKing.Entity.User
+            user = new DurgerKing.Entity.User
             {
                 Id = telegramUser.Id,
                 Fullname = $"{telegramUser.FirstName} {telegramUser.LastName}",
@@ -71,7 +80,8 @@ public partial class UpdateHandler : IUpdateHandler
                 Language = telegramUser.LanguageCode,
                 CreatedAt = DateTime.UtcNow,
                 ModifiedAt = DateTime.UtcNow
-            });
+            };
+            dbContext.Users.Add(user);
             logger.LogInformation("New user with ID {id} added.", telegramUser.Id);
          }
         else
@@ -82,6 +92,8 @@ public partial class UpdateHandler : IUpdateHandler
             logger.LogInformation("user with ID {id} updated.", telegramUser.Id);
         }
         await dbContext.SaveChangesAsync(cancellationToken);
+
+        return user;
     }
 
     private User GetUserFromUpdate(Update update)
