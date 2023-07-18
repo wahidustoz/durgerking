@@ -4,6 +4,7 @@ using DurgerKing.Entity;
 using DurgerKing.Entity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace DurgerKing.Controllers;
 
@@ -41,14 +42,14 @@ public class ProductsController : ControllerBase
 
     [HttpGet]
     public async Task<IActionResult> GetProducts(
-        [FromQuery] string search, 
-        [FromQuery] int offset = 0, 
+        [FromQuery] string search,
+        [FromQuery] int offset = 0,
         [FromQuery] int limit = 25)
     {
         var productsQuery = dbContext.Products.AsQueryable();
-        
-        if(false == string.IsNullOrWhiteSpace(search))
-            productsQuery = productsQuery.Where(u => 
+
+        if (false == string.IsNullOrWhiteSpace(search))
+            productsQuery = productsQuery.Where(u =>
                 u.Name.ToLower().Contains(search.ToLower()));
 
         var products = await productsQuery
@@ -106,10 +107,9 @@ public class ProductsController : ControllerBase
     {
         var product = await dbContext.Products.FirstOrDefaultAsync(u => u.Id == id);
 
-        if(product is null)
+        if (product is null)
             return NotFound();
-        
-        product.IsActive = false;
+
         await dbContext.SaveChangesAsync();
 
         return Ok();
@@ -122,7 +122,7 @@ public class ProductsController : ControllerBase
         CancellationToken cancellationToken = default)
 
     {
-        var product = await dbContext.Products 
+        var product = await dbContext.Products
             .Where(a => a.Id == id && a.IsActive)
             .Include(a => a.Category)
             .FirstOrDefaultAsync(cancellationToken);
@@ -130,20 +130,20 @@ public class ProductsController : ControllerBase
         var setCategory = await dbContext.Categories
             .FirstAsync(p => p.Name == "Set", cancellationToken);
 
-        if(product is null)
+        if (product is null)
             return NotFound();
 
-        if(product.CategoryId != setCategory.Id)
+        if (product.CategoryId != setCategory.Id)
             return BadRequest("This product does not have category {set}");
-        
+
         var items = await dbContext.Products
             .Where(p => itemIds.Contains(p.Id))
             .ToListAsync(cancellationToken);
 
-        if(items.Count < itemIds.Count())
+        if (items.Count < itemIds.Count())
             return BadRequest("Some items do not exist in system");
-        
-        if(items.Any(a => a.CategoryId == setCategory.Id))
+
+        if (items.Any(a => a.CategoryId == setCategory.Id))
             return BadRequest("Some items have category {set}. You cannot add them to set again");
 
         product.Items = items;
@@ -159,7 +159,10 @@ public class ProductsController : ControllerBase
     {
         var file = Request.Form;
 
-        if(file is null)
+        if (file.Files.FirstOrDefault().Length > 5 * 1024 * 1024)
+            return BadRequest("File size exceeds the limit.");
+
+        if (file is null)
             return NotFound();
 
         Dictionary<string, string> content = new Dictionary<string, string>();
@@ -167,13 +170,13 @@ public class ProductsController : ControllerBase
         foreach (var keyValuePair in file)
         {
             content.Add(keyValuePair.Key, keyValuePair.Value);
-        }        
+        }
 
         var product = await dbContext.Products
             .Where(a => a.Id == id && a.IsActive)
             .FirstOrDefaultAsync(cancellationToken);
-        
-        if(product is null)
+
+        if (product is null)
             return NotFound();
 
         string[] AllowedFileExtensions = { ".mp4", ".jpg", ".jpeg", ".png" };
@@ -202,13 +205,13 @@ public class ProductsController : ControllerBase
 
     }
 
-    private async Task<byte[]> GetFileData(IFormFile formFile) 
+    private async Task<byte[]> GetFileData(IFormFile formFile)
     {
         using (var memoryStream = new MemoryStream())
-            {
-                await formFile.CopyToAsync(memoryStream);
-                return memoryStream.ToArray();
-            }
+        {
+            await formFile.CopyToAsync(memoryStream);
+            return memoryStream.ToArray();
+        }
     }
 
     [HttpGet("{id}/media")]
@@ -221,13 +224,13 @@ public class ProductsController : ControllerBase
             .Where(a => a.Id == id && a.IsActive)
             .Include(p => p.Media)
             .FirstOrDefaultAsync(cancellationToken);
-        
-        if(product is null)
+
+        if (product is null)
             return NotFound();
-        
+
         var productMedias = product.Media
             .Select(u => new GetProductMediasDto(u));
-        
+
         return Ok(productMedias);
     }
 
@@ -241,17 +244,42 @@ public class ProductsController : ControllerBase
             .Where(a => a.Id == productId && a.IsActive)
             .Include(p => p.Media)
             .FirstOrDefaultAsync(cancellationToken);
-        
-        if(product is null)
+
+        if (product is null)
             return NotFound();
-        
+
         var media = product.Media
-            .Where(a => a.Id == mediaId)
             .FirstOrDefault();
-        
-        if(media is null)
+
+        if (media is null)
             return NotFound();
-        
-        return Ok(media);
+
+        return File(media.Data, media.MimeType);
+    }
+
+    [HttpDelete("{productId}/media/{mediaId}")]
+    public async Task<IActionResult> DeleteMedia(
+        [FromRoute] Guid productId,
+        [FromRoute] Guid mediaId,
+        CancellationToken cancellationToken)
+    {
+        var product = await dbContext.Products
+            .Where(a => a.Id == productId && a.IsActive)
+            .Include(p => p.Media)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (product is null)
+            return NotFound();
+
+        var media = product.Media
+            .FirstOrDefault(a => a.Id == mediaId);
+
+        if (media is null)
+            return NotFound();
+
+        dbContext.ProductMedias.Remove(media);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return Ok();
     }
 }
