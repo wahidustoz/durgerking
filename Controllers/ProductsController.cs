@@ -151,4 +151,107 @@ public class ProductsController : ControllerBase
 
         return Ok();
     }
+
+    [HttpPost("{id}/media")]
+    public async Task<IActionResult> CreateProductMedias(
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken)
+    {
+        var file = Request.Form;
+
+        if(file is null)
+            return NotFound();
+
+        Dictionary<string, string> content = new Dictionary<string, string>();
+
+        foreach (var keyValuePair in file)
+        {
+            content.Add(keyValuePair.Key, keyValuePair.Value);
+        }        
+
+        var product = await dbContext.Products
+            .Where(a => a.Id == id && a.IsActive)
+            .FirstOrDefaultAsync(cancellationToken);
+        
+        if(product is null)
+            return NotFound();
+
+        string[] AllowedFileExtensions = { ".mp4", ".jpg", ".jpeg", ".png" };
+
+        string fileExtension = Path.GetExtension(file.Files.FirstOrDefault().FileName);
+        if (!AllowedFileExtensions.Contains(fileExtension, StringComparer.OrdinalIgnoreCase))
+        {
+            return BadRequest("Invalid file format. Allowed formats are: MP4, JPG, JPEG, PNG.");
+        }
+
+        var created = dbContext.ProductMedias.Add(new ProductMedia
+        {
+            Id = Guid.NewGuid(),
+            MimeType = file.Files.FirstOrDefault().ContentType,
+            Filename = content.Values.FirstOrDefault(),
+            Extension = fileExtension,
+            Order = int.Parse(content.Values.LastOrDefault()),
+            Data = await GetFileData(file.Files.FirstOrDefault())
+        });
+
+        product.Media.Add(created.Entity);
+
+        await dbContext.SaveChangesAsync();
+
+        return Ok("File upload successfully");
+
+    }
+
+    private async Task<byte[]> GetFileData(IFormFile formFile) 
+    {
+        using (var memoryStream = new MemoryStream())
+            {
+                await formFile.CopyToAsync(memoryStream);
+                return memoryStream.ToArray();
+            }
+    }
+
+    [HttpGet("{id}/media")]
+    public async Task<IActionResult> GetProductMedias(
+        [FromRoute] Guid id,
+        [FromQuery] string search,
+        CancellationToken cancellationToken)
+    {
+        var product = await dbContext.Products
+            .Where(a => a.Id == id && a.IsActive)
+            .Include(p => p.Media)
+            .FirstOrDefaultAsync(cancellationToken);
+        
+        if(product is null)
+            return NotFound();
+        
+        var productMedias = product.Media
+            .Select(u => new GetProductMediasDto(u));
+        
+        return Ok(productMedias);
+    }
+
+    [HttpGet("{productId}/media/{mediaId}")]
+    public async Task<IActionResult> GetProductMedia(
+        [FromRoute] Guid productId,
+        [FromRoute] Guid mediaId,
+        CancellationToken cancellationToken)
+    {
+        var product = await dbContext.Products
+            .Where(a => a.Id == productId && a.IsActive)
+            .Include(p => p.Media)
+            .FirstOrDefaultAsync(cancellationToken);
+        
+        if(product is null)
+            return NotFound();
+        
+        var media = product.Media
+            .Where(a => a.Id == mediaId)
+            .FirstOrDefault();
+        
+        if(media is null)
+            return NotFound();
+        
+        return Ok(media);
+    }
 }
