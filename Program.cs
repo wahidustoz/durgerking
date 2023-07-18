@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using DurgerKing.Entity;
 using DurgerKing.Entity.Data;
 using DurgerKing.Services;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
@@ -13,6 +14,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 builder.Services.AddTransient<IUpdateHandler, UpdateHandler>();
 builder.Services.AddHostedService<BotStartingBackgroundService>();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<IValidator<CreateProductdto>, CreateProductValidator>();
 builder.Services.AddSingleton<ITelegramBotClient, TelegramBotClient>(
     p => new TelegramBotClient(builder.Configuration.GetValue("BotApiKey", string.Empty)));
 
