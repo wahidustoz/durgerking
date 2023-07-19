@@ -158,6 +158,7 @@ public class ProductsController : ControllerBase
     {
         var product = await dbContext.Products
             .Where(a => a.Id == id && a.IsActive)
+            .Include(u => u.Media)
             .FirstOrDefaultAsync(cancellationToken);
 
         if(product is null)
@@ -166,34 +167,35 @@ public class ProductsController : ControllerBase
         var files = Request.Form.Files;
 
         if(files?.Any() is not true)
-            return NotFound();
+            return BadRequest("No files attached");
+        
+        if(files.Count() > 5 || files.Count() + product.Media.Count() > 5)
+            return BadRequest("Total number of files must not exceed 5.");
 
         if (files.Any(f => f.Length > 5 * 1024 * 1024))
             return BadRequest("File size exceeds the limit.");
 
         var allowedFileExtensions = new[] { ".mp4", ".jpg", ".jpeg", ".png" };
         
-        int order = 1;
         foreach(var file in files)
         {
             string fileExtension = Path.GetExtension(file.FileName);
             if(!allowedFileExtensions.Contains(fileExtension, StringComparer.OrdinalIgnoreCase))
                 return BadRequest("Invalid file format. Allowed formats are: MP4, JPG, JPEG, PNG.");
             
-            product.Media.Add(new ProductMedia
+            product.Media.Add(new ProductMedium
             {
-                Id = Guid.NewGuid(),
                 MimeType = file.ContentType,
                 Filename = file.Name,
                 Extension = fileExtension,
-                Order = order++,
+                Order = product.Media.Count() + 1,
                 Data = await GetFileData(file)
             });
         }
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        var values = product.Media.Take(25).Select(m => new GetProductMediumDto(m)
+        var values = product.Media.Select(m => new GetProductMediumDto(m)
         {
             Url = GetMediumDownloadUrl(productId: product.Id, mediumId: m.Id)
         });
@@ -201,14 +203,12 @@ public class ProductsController : ControllerBase
         return CreatedAtAction(
             actionName: nameof(GetProductMedia),
             routeValues: new { product.Id },
-            value: new PaginatedList<GetProductMediumDto>(values, product.Media.Count(), 1, 25));
+            value: values);
     }
 
     [HttpGet("{id}/media")]
     public async Task<IActionResult> GetProductMedia(
         [FromRoute] Guid id,
-        [FromQuery] int offset = 0,
-        [FromQuery] int limit = 25,
         CancellationToken cancellationToken = default)
     {
         var product = await dbContext.Products
@@ -219,19 +219,14 @@ public class ProductsController : ControllerBase
         if(product is null)
             return NotFound();
 
-        var productMedia = product.Media
-            .Skip(limit * offset)
-            .Take(limit)
-            .Select(u => new GetProductMediumDto(u)
-            {
-                Url = GetMediumDownloadUrl(productId: product.Id, mediumId: u.Id)
-            });
-
-        return Ok(new PaginatedList<GetProductMediumDto>(productMedia, product.Media.Count(), offset + 1, limit));
+        return Ok(product.Media.Select(u => new GetProductMediumDto(u)
+        {
+            Url = GetMediumDownloadUrl(productId: product.Id, mediumId: u.Id)
+        }));
     }
 
     [HttpGet("{productId}/media/{mediumId}")]
-    public async Task<IActionResult> GetProductMedium(
+    public async Task<IActionResult> DownloadProductMedium(
         [FromRoute] Guid productId,
         [FromRoute] Guid mediumId,
         CancellationToken cancellationToken)
@@ -273,7 +268,7 @@ public class ProductsController : ControllerBase
         if(media is null)
             return NotFound();
 
-        dbContext.ProductMedias.Remove(media);
+        dbContext.ProductMedia.Remove(media);
         await dbContext.SaveChangesAsync(cancellationToken);
 
         return Ok();
@@ -290,7 +285,7 @@ public class ProductsController : ControllerBase
     
     private string GetMediumDownloadUrl(Guid productId, Guid mediumId)
         => Url.ActionLink(
-            action: nameof(GetProductMedium),
+            action: nameof(DownloadProductMedium),
             protocol: Request.Scheme,
             host: Request.Host.Value,
             values: new { productId, mediumId });

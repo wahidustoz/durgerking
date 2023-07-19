@@ -4,15 +4,18 @@ namespace DurgerKing.Dtos;
 
 public class GetProductMediumDto
 {
-    public GetProductMediumDto(ProductMedia entity)
+    public GetProductMediumDto(ProductMedium entity)
     {
+        Id = entity.Id;
+        ProductId = entity.ProductId;
         Filename = entity.Filename;
         Extension = entity.Extension;
         MimeType = entity.MimeType;
-        Url = "";
         Order = entity.Order;
     }
 
+    public Guid Id { get; set; }
+    public Guid ProductId { get; set; }
     public string Filename { get; set; }
     public string Extension { get; set; }
     public string MimeType { get; set; }

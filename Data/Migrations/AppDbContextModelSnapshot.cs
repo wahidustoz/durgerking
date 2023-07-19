@@ -37,7 +37,7 @@ namespace durgerking.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
 
                     b.HasData(
                         new
@@ -105,7 +105,7 @@ namespace durgerking.Data.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("DurgerKing.Entity.ProductMedia", b =>
@@ -136,7 +136,7 @@ namespace durgerking.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductMedia");
+                    b.ToTable("ProductMedia", (string)null);
                 });
 
             modelBuilder.Entity("DurgerKing.Entity.User", b =>
@@ -176,7 +176,7 @@ namespace durgerking.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("ProductProduct", b =>
@@ -191,7 +191,7 @@ namespace durgerking.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductProduct");
+                    b.ToTable("ProductProduct", (string)null);
                 });
 
             modelBuilder.Entity("DurgerKing.Entity.Product", b =>
