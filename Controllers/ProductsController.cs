@@ -1,5 +1,6 @@
 using Durgerking.Dtos;
 using DurgerKing.Dtos;
+using DurgerKing.Entity;
 using DurgerKing.Entity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,7 +19,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateProduct([FromBody] CreateProductdto productdto)
+    public async Task<IActionResult> CreateProduct([FromBody] CreateProductDto productdto)
     {
         var created = dbContext.Products.Add(new Product
         {

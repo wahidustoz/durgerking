@@ -1,3 +1,5 @@
+using DurgerKing.Entity;
+
 namespace DurgerKing.Dtos;
 
 public class GetProductDto
