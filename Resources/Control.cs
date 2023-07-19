@@ -1,6 +1,6 @@
 namespace DurgerKing.Resources;
 
-public class Controls
+public class Control
 {
 
 }

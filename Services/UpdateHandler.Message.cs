@@ -1,4 +1,3 @@
-using DurgerKing.Entity.Data;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -38,7 +37,7 @@ public partial class UpdateHandler
             cancellationToken: cancellationToken);
     }
 
-    private async Task SelectSettingsAsync(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
+    private static async Task SelectSettingsAsync(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
     {
         var keyboardLayout = new KeyboardButton[][]
         {
@@ -79,6 +78,7 @@ public partial class UpdateHandler
             replyMarkup : inlineKeyboard,
             cancellationToken : cancellationToken);
     }
+
     private static string GetCheckmarkOrEmpty(string userLanguage, string languageCode)
         => string.Equals(userLanguage, languageCode, StringComparison.InvariantCultureIgnoreCase)
         ? "✅"
