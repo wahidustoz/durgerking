@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using DurgerKing.Dtos;
 using DurgerKing.Entity;
 using DurgerKing.Entity.Data;
 using DurgerKing.Services;
@@ -14,7 +15,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 builder.Services.AddTransient<IUpdateHandler, UpdateHandler>();
 builder.Services.AddHostedService<BotStartingBackgroundService>();
 builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<IValidator<CreateProductdto>, CreateProductValidator>();
+builder.Services.AddScoped<IValidator<CreateProductDto>, CreateProductValidator>();
 builder.Services.AddSingleton<ITelegramBotClient, TelegramBotClient>(
     p => new TelegramBotClient(builder.Configuration.GetValue("BotApiKey", string.Empty)));
 

@@ -1,8 +1,7 @@
-
 using DurgerKing.Dtos;
 using FluentValidation;
 
-public class CreateProductValidator: AbstractValidator<CreateProductdto>
+public class CreateProductValidator: AbstractValidator<CreateProductDto>
 {
     public CreateProductValidator()
     {
