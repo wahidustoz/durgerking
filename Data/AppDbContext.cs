@@ -1,15 +1,18 @@
-using DurgerKing.Entity;
 using DurgerKing.Entity.Data;
 using Microsoft.EntityFrameworkCore;
+
+namespace DurgerKing.Entity;
+
 public class AppDbContext : DbContext, IAppDbContext
 {
     public DbSet<User> Users { get; set; }
     public DbSet<Category> Categories { get; set; }
     public DbSet<Product> Products { get; set; }
-    public DbSet<ProductMedia> ProductMedias { get; set; }
+    public DbSet<ProductMedia> ProductMedia { get; set; }
 
     public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options) { }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<User>()
@@ -56,7 +59,6 @@ public class AppDbContext : DbContext, IAppDbContext
                 new { Id = 4, Name = "Salad" },
                 new { Id = 5, Name = "Set" });
 
-        // Product Entity
         modelBuilder.Entity<Product>()
             .HasKey(c => c.Id);
 
@@ -80,15 +82,14 @@ public class AppDbContext : DbContext, IAppDbContext
             .HasMany(u => u.Items)
             .WithMany();
 
-        // ProductMedia Entity
-        modelBuilder.Entity<Product>()
+        modelBuilder.Entity<ProductMedia>()
             .HasKey(c => c.Id);
 
-        modelBuilder.Entity<ProductMedia>()
-            .HasOne(m => m.Product)
-            .WithMany(p => p.Media)
+        modelBuilder.Entity<Product>()
+            .HasMany(p => p.Media)
+            .WithOne(m => m.Product)
             .IsRequired()
-            .OnDelete(DeleteBehavior.NoAction);
+            .OnDelete(DeleteBehavior.Cascade);
 
         base.OnModelCreating(modelBuilder);
     }
