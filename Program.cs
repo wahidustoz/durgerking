@@ -8,6 +8,7 @@ using Telegram.Bot.Polling;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddLocalization();
 builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull);
 builder.Services.AddTransient<IUpdateHandler, UpdateHandler>();

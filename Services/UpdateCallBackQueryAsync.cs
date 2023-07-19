@@ -1,4 +1,3 @@
-using DurgerKing.Entity.Data;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Types;
