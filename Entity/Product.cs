@@ -1,4 +1,4 @@
-using DurgerKing.Entity;
+namespace DurgerKing.Entity;
 
 public class Product
 {

@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using DurgerKing.Entity;
 using DurgerKing.Entity.Data;
 using DurgerKing.Services;
 using Microsoft.EntityFrameworkCore;
