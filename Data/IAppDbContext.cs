@@ -7,6 +7,6 @@ public interface IAppDbContext
     DbSet<User> Users { get; set; }
     DbSet<Category> Categories { get; set; }
     DbSet<Product> Products { get; set; }
-    DbSet<ProductMedia> ProductMedia { get; set; }
+    DbSet<ProductMedium> ProductMedia { get; set; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
