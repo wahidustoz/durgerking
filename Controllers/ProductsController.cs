@@ -180,7 +180,7 @@ public class ProductsController : ControllerBase
             if(!allowedFileExtensions.Contains(fileExtension, StringComparer.OrdinalIgnoreCase))
                 return BadRequest("Invalid file format. Allowed formats are: MP4, JPG, JPEG, PNG.");
             
-            var created = dbContext.ProductMedias.Add(new ProductMedia
+            product.Media.Add(new ProductMedia
             {
                 Id = Guid.NewGuid(),
                 MimeType = file.ContentType,
@@ -189,20 +189,27 @@ public class ProductsController : ControllerBase
                 Order = order++,
                 Data = await GetFileData(file)
             });
-
-            product.Media.Add(created.Entity);
         }
 
-        await dbContext.SaveChangesAsync();
+        await dbContext.SaveChangesAsync(cancellationToken);
 
-        return CreatedAtAction(nameof(GetProductMedia), new { id = product.Id }, product.Media);
+        var values = product.Media.Take(25).Select(m => new GetProductMediumDto(m)
+        {
+            Url = GetMediumDownloadUrl(productId: product.Id, mediumId: m.Id)
+        });
+
+        return CreatedAtAction(
+            actionName: nameof(GetProductMedia),
+            routeValues: new { product.Id },
+            value: new PaginatedList<GetProductMediumDto>(values, product.Media.Count(), 1, 25));
     }
 
     [HttpGet("{id}/media")]
     public async Task<IActionResult> GetProductMedia(
         [FromRoute] Guid id,
-        [FromQuery] string search,
-        CancellationToken cancellationToken)
+        [FromQuery] int offset = 0,
+        [FromQuery] int limit = 25,
+        CancellationToken cancellationToken = default)
     {
         var product = await dbContext.Products
             .Where(a => a.Id == id && a.IsActive)
@@ -212,18 +219,15 @@ public class ProductsController : ControllerBase
         if(product is null)
             return NotFound();
 
-        var productMedias = product.Media
+        var productMedia = product.Media
+            .Skip(limit * offset)
+            .Take(limit)
             .Select(u => new GetProductMediumDto(u)
             {
-                Url = Url.Action(
-                    action: nameof(GetProductMedium),
-                    controller: nameof(ProductsController),
-                    host: Request.Host.ToString(),
-                    protocol: Request.Protocol,
-                    values: new {MediaId = u.Id})
+                Url = GetMediumDownloadUrl(productId: product.Id, mediumId: u.Id)
             });
 
-        return Ok(productMedias);
+        return Ok(new PaginatedList<GetProductMediumDto>(productMedia, product.Media.Count(), offset + 1, limit));
     }
 
     [HttpGet("{productId}/media/{mediumId}")]
@@ -283,4 +287,11 @@ public class ProductsController : ControllerBase
             return memoryStream.ToArray();
         }
     }
+    
+    private string GetMediumDownloadUrl(Guid productId, Guid mediumId)
+        => Url.ActionLink(
+            action: nameof(GetProductMedium),
+            protocol: Request.Scheme,
+            host: Request.Host.Value,
+            values: new { productId, mediumId });
 }
