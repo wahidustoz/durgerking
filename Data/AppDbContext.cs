@@ -8,7 +8,7 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<User> Users { get; set; }
     public DbSet<Category> Categories { get; set; }
     public DbSet<Product> Products { get; set; }
-    public DbSet<ProductMedia> ProductMedia { get; set; }
+    public DbSet<ProductMedium> ProductMedia { get; set; }
 
     public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options) { }
@@ -82,12 +82,13 @@ public class AppDbContext : DbContext, IAppDbContext
             .HasMany(u => u.Items)
             .WithMany();
 
-        modelBuilder.Entity<ProductMedia>()
+        modelBuilder.Entity<ProductMedium>()
             .HasKey(c => c.Id);
 
         modelBuilder.Entity<Product>()
             .HasMany(p => p.Media)
             .WithOne(m => m.Product)
+            .HasForeignKey(m => m.ProductId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
 
