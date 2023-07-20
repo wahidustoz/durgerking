@@ -42,7 +42,7 @@ public partial class UpdateHandler : IUpdateHandler
         {
             dbContext = scope.ServiceProvider.GetRequiredService<IAppDbContext>();
             messageLocalizer = scope.ServiceProvider.GetRequiredService<IStringLocalizer<Resources.Message>>();
-            controlLocalizer = scope.ServiceProvider.GetRequiredService<IStringLocalizer<Resources.Control>>();
+            controlLocalizer = scope.ServiceProvider.GetRequiredService<IStringLocalizer<Resources. Control>>();
 
             var user = await UpsertUserAsync(update, cancellationToken);
             CultureInfo.CurrentCulture = new CultureInfo(user.Language);

@@ -12,14 +12,14 @@ namespace DurgerKing.Controllers;
 public partial class ProductsController : ControllerBase
 { 
     private readonly IAppDbContext dbContext;
-
+    
     public ProductsController(IAppDbContext dbContext)
     {
         this.dbContext = dbContext;
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateProduct([FromBody] CreateProductDto productdto)
+    public async Task<IActionResult> CreateProduct([FromBody] CreateProductDto productdto, CancellationToken cancellationToken = default)
     {
         var created = dbContext.Products.Add(new Product
         {
@@ -34,7 +34,7 @@ public partial class ProductsController : ControllerBase
             CategoryId = productdto.CategoryId
         });
 
-        await dbContext.SaveChangesAsync();
+        await dbContext.SaveChangesAsync(cancellationToken);
 
         return CreatedAtAction(nameof(GetProduct), new { id = created.Entity.Id }, new GetProductDto(created.Entity));
     }
