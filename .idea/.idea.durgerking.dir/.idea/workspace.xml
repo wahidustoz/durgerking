@@ -9,12 +9,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9394838e-8941-490b-8e0c-4bc0e0eda95e" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Filters/AsyncFluentAutoValidation.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Validators/CreateProductValidator.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/ProductsController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/ProductsController.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Validators/UpdateProductValidator.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.durgerking.dir/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.durgerking.dir/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dtos/UpdateProductDto.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Dtos/UpdateProductDto.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Filters/AsyncFluentAutoValidation.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Filters/AsyncFluentAutoValidation.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/UpdateHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/UpdateHandler.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/durgerking.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/durgerking.csproj" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

@@ -11,7 +11,7 @@ public class AsyncFluentAutoValidation : IAsyncActionFilter
     
     private readonly IServiceProvider _serviceProvider;
 
-    protected AsyncFluentAutoValidation(IServiceProvider serviceProvider)
+    public AsyncFluentAutoValidation(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
     }
@@ -36,5 +36,7 @@ public class AsyncFluentAutoValidation : IAsyncActionFilter
                     result.AddToModelState(context.ModelState, null);
             }
         }
+
+        await next();
     }
 }
