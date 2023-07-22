@@ -1,9 +1,7 @@
-using Durgerking.Dtos;
-using DurgerKing.Dtos;
-using DurgerKing.Entity;
-using DurgerKing.Entity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
+namespace DurgerKing.Controllers;
 
 [Route("api/[controller]")]
 public partial class ProductsController : ControllerBase
