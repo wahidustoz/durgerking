@@ -1,5 +1,5 @@
 using System.Globalization;
-using DurgerKing.Entity.Data;
+using DurgerKing.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using Telegram.Bot;
@@ -38,7 +38,7 @@ public partial class UpdateHandler : IUpdateHandler
         update.Type,
         update.Message?.From?.Id);
 
-        using (var scope = serviceScopeFactory.CreateScope())
+        using(var scope = serviceScopeFactory.CreateScope())
         {
             dbContext = scope.ServiceProvider.GetRequiredService<IAppDbContext>();
             messageLocalizer = scope.ServiceProvider.GetRequiredService<IStringLocalizer<Resources.Message>>();
@@ -70,7 +70,7 @@ public partial class UpdateHandler : IUpdateHandler
     {
         var telegramUser = GetUserFromUpdate(update);
         var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == telegramUser.Id, cancellationToken);
-        if (user is null)
+        if(user is null)
         {
             user = new DurgerKing.Entity.User
             {

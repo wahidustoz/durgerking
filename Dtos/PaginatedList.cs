@@ -1,4 +1,4 @@
-namespace Durgerking.Dtos;
+namespace DurgerKing.Dtos;
 
 public class PaginatedList<T>
 {

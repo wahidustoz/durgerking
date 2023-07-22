@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 using DurgerKing.Entity;
-using DurgerKing.Entity.Data;
+using DurgerKing.Data;
 using DurgerKing.Services;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
@@ -22,7 +22,7 @@ builder.Services.AddDbContext<IAppDbContext, AppDbContext>(
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+if(app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();

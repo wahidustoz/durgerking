@@ -1,4 +1,4 @@
-using DurgerKing.Entity.Data;
+using DurgerKing.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace DurgerKing.Entity;

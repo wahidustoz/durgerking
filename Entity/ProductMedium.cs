@@ -9,5 +9,6 @@ public class ProductMedium
     public int Order { get; set; }
     public byte[] Data { get; set; }
     public Guid ProductId { get; set; }
+    
     public virtual Product Product { get; set; }
 }

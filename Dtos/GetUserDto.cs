@@ -1,6 +1,6 @@
 using DurgerKing.Entity;
 
-namespace DurgerKing.Dto;
+namespace DurgerKing.Dtos;
 
 public class GetUserDto
 {
@@ -14,6 +14,7 @@ public class GetUserDto
         CreatedAt = entity.CreatedAt;
         ModifiedAt = entity.ModifiedAt;
     }
+    
     public long Id { get; set; }
     public string Fullname { get; set; }
     public string Username { get; set; }

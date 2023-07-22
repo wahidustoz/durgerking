@@ -16,7 +16,7 @@ public partial class UpdateHandler
             await SendGreetingMessageAsycn(botClient, message, cancellationToken);
         else if(message.Text == "/settings")
             await SelectSettingsAsync(botClient, message, cancellationToken);
-        else if (message.Text == "Language 🎏")
+        else if(message.Text == "Language 🎏")
             await SendSelectLanguageInlineAsync(botClient,message.From.Id,message.Chat.Id,cancellationToken);
     }
 
