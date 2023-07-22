@@ -8,14 +8,8 @@ using Microsoft.EntityFrameworkCore;
 [Route("api/[controller]")]
 public partial class ProductsController : ControllerBase
 {
-   
-  
     [HttpPost("{id}/set")]
-    public async Task<IActionResult> CreateSet(
-        [FromRoute] Guid id,
-        [FromBody] IEnumerable<Guid> itemIds,
-        CancellationToken cancellationToken = default)
-
+    public async Task<IActionResult> CreateSet([FromRoute] Guid id,[FromBody] IEnumerable<Guid> itemIds, CancellationToken cancellationToken = default)
     {
         var product = await dbContext.Products
             .Where(a => a.Id == id && a.IsActive)
@@ -46,5 +40,4 @@ public partial class ProductsController : ControllerBase
 
         return Ok();
     }
-    
 }
