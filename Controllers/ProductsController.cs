@@ -11,6 +11,13 @@ namespace DurgerKing.Controllers;
 [Route("api/[controller]")]
 public partial class ProductsController : ControllerBase
 {
+    private readonly IAppDbContext dbContext;
+
+    public ProductsController(IAppDbContext dbContext)
+    {
+        this.dbContext = dbContext;
+    }
+
     [HttpPost]
     public async Task<IActionResult> CreateProduct([FromBody] CreateProductDto productdto)
     {

@@ -4,8 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace DurgerKing.Controllers;
-
-
 public partial class ProductsController
 {
     [HttpPost("{id}/set")]
