@@ -1,4 +1,3 @@
-using DurgerKing.Entity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
