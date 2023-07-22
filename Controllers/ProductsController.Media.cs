@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 namespace DurgerKing.Controllers;
 
-[Route("api/[controller]")]
 public partial class ProductsController : ControllerBase
 {
     [HttpPost("{id}/media")]
