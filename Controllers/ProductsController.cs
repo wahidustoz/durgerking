@@ -19,7 +19,7 @@ public partial class ProductsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateProduct([FromBody] CreateProductDto productdto, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> CreateProduct([FromBody] CreateProductDto productdto)
     {
         var created = dbContext.Products.Add(new Product
         {
@@ -34,7 +34,7 @@ public partial class ProductsController : ControllerBase
             CategoryId = productdto.CategoryId
         });
 
-        await dbContext.SaveChangesAsync(cancellationToken);
+        await dbContext.SaveChangesAsync();
 
         return CreatedAtAction(nameof(GetProduct), new { id = created.Entity.Id }, new GetProductDto(created.Entity));
     }
