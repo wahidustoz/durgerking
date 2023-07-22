@@ -3,6 +3,7 @@ using DurgerKing.Dtos;
 using DurgerKing.Entity;
 using DurgerKing.Entity.Data;
 using Durgerking.Filters;
+using Durgerking.Interfaces;
 using DurgerKing.Services;
 using durgerking.Validators;
 using FluentValidation;
@@ -21,6 +22,7 @@ builder.Services.AddLocalization();
 builder.Services.AddTransient<IValidator<CreateProductDto>, CreateProductValidator>();
 builder.Services.AddTransient<IValidator<UpdateProductDto>, UpdateProductValidator>();
 builder.Services.AddTransient<IUpdateHandler, UpdateHandler>();
+builder.Services.AddSingleton<IDeleteMessageListService, DeleteMessageListService>();
 builder.Services.AddHostedService<BotStartingBackgroundService>();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<ITelegramBotClient, TelegramBotClient>(
