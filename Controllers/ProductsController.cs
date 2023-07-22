@@ -12,7 +12,7 @@ namespace DurgerKing.Controllers;
 public partial class ProductsController : ControllerBase
 { 
     private readonly IAppDbContext dbContext;
-
+    
     public ProductsController(IAppDbContext dbContext)
     {
         this.dbContext = dbContext;
