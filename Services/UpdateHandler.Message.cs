@@ -18,6 +18,29 @@ public partial class UpdateHandler
             await SelectSettingsAsync(botClient, message, cancellationToken);
         else if (message.Text == "Language 🎏")
             await SendSelectLanguageInlineAsync(botClient,message.From.Id,message.Chat.Id,cancellationToken);
+        else if(message.Text=="Contact ☎️")
+            await CheckContactAsync(botClient, message,cancellationToken);
+
+        if (message.Contact is not null)
+        {
+          var user = await dbContext.Users
+          .Where(u => u.Id == message.From.Id)
+          .Include(u => u.Contact)
+          .FirstOrDefaultAsync(cancellationToken);
+
+          var contact = user.Contact;
+
+          contact.UserId = message.From.Id;
+          contact.PhoneNumber = message.Contact.PhoneNumber;
+          contact.FirstName = message.From.FirstName;
+          contact.LastName = message.From.LastName;
+          contact.Vcard = message.Contact.Vcard;
+         // dbContext.Users.FirstOrDefault(x => x.Id == message.From.Id).Contact = contact;
+          dbContext.Contacts.Add(contact);
+
+          await dbContext.SaveChangesAsync();
+        }
+
     }
 
     private async Task SendGreetingMessageAsycn(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
@@ -51,7 +74,44 @@ public partial class UpdateHandler
             replyMarkup: new ReplyKeyboardMarkup(keyboardLayout) { ResizeKeyboard = true },
             cancellationToken: cancellationToken);
     }
-    
+
+    private   async Task  CheckContactAsync(ITelegramBotClient botClient,Message message, CancellationToken cancellationToken)
+    {
+        var user = await dbContext.Users
+        .Where(u => u.Id == message.From.Id)
+        .Include(u => u.Contact)
+        .FirstOrDefaultAsync(cancellationToken);
+
+        var contact = user.Contact;
+
+        if (contact == null)
+        {
+             var keyboardLayout = new KeyboardButton[][]
+            {
+                new KeyboardButton[] { KeyboardButton.WithRequestContact ("Contact ☎️") },
+            };
+            await botClient.SendTextMessageAsync(
+                message.Chat.Id,
+                "Send your contact",
+                replyMarkup: new ReplyKeyboardMarkup(keyboardLayout) { ResizeKeyboard = true },
+                cancellationToken: cancellationToken);
+        }
+        
+
+        InlineKeyboardMarkup inlineKeyboard = new(new[]
+        {
+            new []
+            {
+                InlineKeyboardButton.WithCallbackData(text: "Update", callbackData: "update"),
+            },
+        });
+        await botClient.SendTextMessageAsync(
+                message.Chat.Id,
+                contact.ToString(),
+                replyMarkup: inlineKeyboard ,
+                cancellationToken: cancellationToken);
+    }
+
     public async Task SendSelectLanguageInlineAsync(ITelegramBotClient client,long chatId,long userId,CancellationToken cancellationToken)
     {
         var user = await dbContext.Users.FirstAsync(u => u.Id == userId,cancellationToken);
