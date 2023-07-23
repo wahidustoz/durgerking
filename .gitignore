@@ -5,6 +5,8 @@
 
 *.sln
 *.idea
+*.github
+*.git
 appsettings.*.json
 # User-specific files
 *.rsuser
