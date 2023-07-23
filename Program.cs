@@ -1,7 +1,6 @@
 using System.Text.Json.Serialization;
 using DurgerKing.Dtos;
-using DurgerKing.Entity;
-using DurgerKing.Entity.Data;
+using DurgerKing.Data;
 using Durgerking.Filters;
 using DurgerKing.Services;
 using durgerking.Validators;

@@ -1,5 +1,5 @@
 using DurgerKing.Dtos;
-using DurgerKing.Entity.Data;
+using DurgerKing.Data;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
