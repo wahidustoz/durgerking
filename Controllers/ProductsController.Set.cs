@@ -26,7 +26,7 @@ public partial class ProductsController : ControllerBase
             .Where(p => itemIds.Contains(p.Id))
             .ToListAsync(cancellationToken);
 
-        if(items.Count < itemIds.Count())
+        if(items.Count() < itemIds.Count())
             return BadRequest("Some items do not exist in system");
 
         if(items.Any(a => a.CategoryId == setCategory.Id))

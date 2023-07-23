@@ -1,6 +1,6 @@
 using Durgerking.Dtos;
 using DurgerKing.Dto;
-using DurgerKing.Entity.Data;
+using DurgerKing.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 

@@ -1,6 +1,7 @@
+using DurgerKing.Entity;
 using Microsoft.EntityFrameworkCore;
 
-namespace DurgerKing.Entity.Data;
+namespace DurgerKing.Data;
 
 public interface IAppDbContext
 {
