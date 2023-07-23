@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using DurgerKing.Entity;
 using Telegram.Bot;
 
-namespace durgerking.Extentions
+namespace DurgerKing.Extentions
 {
     public static class ServiceExtensions
     {
