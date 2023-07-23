@@ -9,6 +9,7 @@ using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
+using durgerking.Extentions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,5 +38,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseHealth();
 app.MapControllers();
+
 app.Run();
