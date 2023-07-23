@@ -29,6 +29,11 @@ builder.Services.AddSingleton<ITelegramBotClient, TelegramBotClient>(
 builder.Services.AddDbContext<IAppDbContext, AppDbContext>(
     options => options.UseNpgsql(builder.Configuration.GetConnectionString("PostgresConnection")));
 
+builder.Services.AddHttpClient("GeoCodeBaseUrl", client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration.GetValue("GeoCodeBaseUrl", string.Empty));
+});
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())

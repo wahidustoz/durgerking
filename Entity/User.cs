@@ -9,4 +9,6 @@ public class User
     public string Phone { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime ModifiedAt { get; set; }
+
+    public virtual List<Location> Locations { get; set; } = new List<Location>();
 }

@@ -9,6 +9,7 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<Category> Categories { get; set; }
     public DbSet<Product> Products { get; set; }
     public DbSet<ProductMedium> ProductMedia { get; set; }
+    public DbSet<Location> Locations { get; set; }
 
     public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options) { }
@@ -89,6 +90,16 @@ public class AppDbContext : DbContext, IAppDbContext
             .HasMany(p => p.Media)
             .WithOne(m => m.Product)
             .HasForeignKey(m => m.ProductId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        modelBuilder.Entity<Location>()
+            .HasKey(c => c.Id);
+        
+        modelBuilder.Entity<User>()
+            .HasMany(p => p.Locations)
+            .WithOne(m => m.User)
+            .HasForeignKey(m => m.OwnerId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
 

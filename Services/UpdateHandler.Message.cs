@@ -18,6 +18,23 @@ public partial class UpdateHandler
             await SelectSettingsAsync(botClient, message, cancellationToken);
         else if (message.Text == "Language 🎏")
             await SendSelectLanguageInlineAsync(botClient,message.From.Id,message.Chat.Id,cancellationToken);
+        else if(message.Text == "Locations 📌")
+            await SendShowAddButtonsAsync(botClient, message, cancellationToken);
+        
+        if(message.Location is not null)
+        {
+            var addressText = await addressService.GetAddressTextAsync(
+                latitude: message.Location.Latitude,
+                longitute: message.Location.Longitude,
+                cancellationToken: cancellationToken
+            );
+
+            await botClient.SendTextMessageAsync(
+                chatId: message.Chat.Id,
+                text: addressText,
+                cancellationToken: cancellationToken
+            );
+        }
     }
 
     private async Task SendGreetingMessageAsycn(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
@@ -77,6 +94,21 @@ public partial class UpdateHandler
             text: "Please Select a language",
             replyMarkup : inlineKeyboard,
             cancellationToken : cancellationToken);
+    }
+
+    private async Task SendShowAddButtonsAsync(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
+    {
+        var keyboardLayout = new KeyboardButton[][]
+        {
+            new KeyboardButton[] { "👁", KeyboardButton.WithRequestLocation("➕")},
+        };
+
+        await botClient.SendTextMessageAsync(
+            chatId: message.Chat.Id,
+            text: "Select show or add location",
+            replyMarkup: new ReplyKeyboardMarkup(keyboardLayout) { ResizeKeyboard = true },
+            cancellationToken: cancellationToken
+        );
     }
 
     private static string GetCheckmarkOrEmpty(string userLanguage, string languageCode)
