@@ -8,6 +8,7 @@ public partial class UpdateHandler
 {
     private async Task HandleCallBackQueryAsync(ITelegramBotClient client,CallbackQuery query,CancellationToken cancellationToken=default)
     {
+        logger.LogInformation("Received callback query data: {data}", query.Data);
         var task = query.Data switch
         {
             _ when query.Data.Contains("language")

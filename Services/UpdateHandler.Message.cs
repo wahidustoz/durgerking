@@ -15,8 +15,8 @@ public partial class UpdateHandler
         if(message.Text == "/start" || message.Text == "/help")
             await SendGreetingMessageAsycn(botClient, message, cancellationToken);
         else if(message.Text == "/settings")
-            await SelectSettingsAsync(botClient, message, cancellationToken);
-        else if (message.Text == "Language 🎏")
+            await SelectSettingsAsync(botClient, message.Chat.Id, cancellationToken);
+        else if (message.Text == "/language")
             await SendSelectLanguageInlineAsync(botClient,message.From.Id,message.Chat.Id,cancellationToken);
     }
 
@@ -24,31 +24,45 @@ public partial class UpdateHandler
     {
         var username = message.From?.Username ?? message.From.FirstName;
         var greeting = messageLocalizer["greeting-msg", username]; 
-        var replyKeyboardMarkup = new ReplyKeyboardMarkup(new KeyboardButton[][]
+        var inlineKeyboard = new InlineKeyboardMarkup(new []
+        {
+            new[]
             {
-                new KeyboardButton[] { "Settings ⚙️", "Menu 🍔" },
-                new KeyboardButton[] { "Orders 📝" }
-            }) { ResizeKeyboard = true };
+                InlineKeyboardButton.WithCallbackData("Settings ⚙️", "settings"),
+                InlineKeyboardButton.WithCallbackData("Menu 🍔", "menu") 
+            },
+            new[]
+            {
+                InlineKeyboardButton.WithCallbackData( "Orders 📝", "orders")
+            }
+        });
 
         await botClient.SendTextMessageAsync(
             text: greeting,
             chatId: message.Chat.Id,
-            replyMarkup: replyKeyboardMarkup,
+            replyMarkup: inlineKeyboard,
             cancellationToken: cancellationToken);
     }
 
-    private static async Task SelectSettingsAsync(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
+    private static async Task SelectSettingsAsync(ITelegramBotClient botClient, long chatId, CancellationToken cancellationToken)
     {
-        var keyboardLayout = new KeyboardButton[][]
+        var inlineKeyboard = new InlineKeyboardMarkup(new[]
         {
-            new KeyboardButton[] { "Language 🎏", "Locations 📌", },
-            new KeyboardButton[] { "Contact ☎️" },
-        };
+            new []
+            {
+                InlineKeyboardButton.WithCallbackData("Language 🎏", "language"),
+                InlineKeyboardButton.WithCallbackData("Locations 📌", "locations")
+            },
+            new []
+            {
+                InlineKeyboardButton.WithCallbackData("Contact ☎️", "contact")
+            }
+        });
 
         await botClient.SendTextMessageAsync(
-            message.Chat.Id,
+            chatId : chatId,
             "Please select a setting:",
-            replyMarkup: new ReplyKeyboardMarkup(keyboardLayout) { ResizeKeyboard = true },
+            replyMarkup: inlineKeyboard,
             cancellationToken: cancellationToken);
     }
     
@@ -83,4 +97,4 @@ public partial class UpdateHandler
         => string.Equals(userLanguage, languageCode, StringComparison.InvariantCultureIgnoreCase)
         ? "✅"
         :string.Empty;
-}
+} 
