@@ -94,12 +94,12 @@ public class AppDbContext : DbContext, IAppDbContext
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<Contact>()
-            .HasKey(u => u.UserId);
+            .HasKey(u => u.Id);
             
         modelBuilder.Entity<User>()
             .HasOne(u => u.Contact)
             .WithOne(c => c.User)
-            .HasForeignKey<Contact>(c => c.UserId)
+            .HasForeignKey<Contact>(c => c.Id)
             .HasPrincipalKey<User>(u => u.Id);
 
         base.OnModelCreating(modelBuilder);

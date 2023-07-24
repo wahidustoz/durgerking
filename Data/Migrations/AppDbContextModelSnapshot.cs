@@ -66,7 +66,7 @@ namespace durgerking.Data.Migrations
 
             modelBuilder.Entity("DurgerKing.Entity.Contact", b =>
                 {
-                    b.Property<long?>("UserId")
+                    b.Property<long>("Id")
                         .HasColumnType("bigint");
 
                     b.Property<string>("FirstName")
@@ -81,7 +81,7 @@ namespace durgerking.Data.Migrations
                     b.Property<string>("Vcard")
                         .HasColumnType("text");
 
-                    b.HasKey("UserId");
+                    b.HasKey("Id");
 
                     b.ToTable("Contacts");
                 });
@@ -217,7 +217,7 @@ namespace durgerking.Data.Migrations
                 {
                     b.HasOne("DurgerKing.Entity.User", "User")
                         .WithOne("Contact")
-                        .HasForeignKey("DurgerKing.Entity.Contact", "UserId")
+                        .HasForeignKey("DurgerKing.Entity.Contact", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
