@@ -1,4 +1,4 @@
-using DurgerKing.Entity;
+using DurgerKing.Data;
 using Telegram.Bot;
 
 namespace DurgerKing
