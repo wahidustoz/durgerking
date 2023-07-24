@@ -8,7 +8,7 @@ using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
-using DurgerKing.Extentions;
+using DurgerKing;
 
 var builder = WebApplication.CreateBuilder(args);
 

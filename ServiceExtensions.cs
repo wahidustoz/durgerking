@@ -1,13 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using DurgerKing.Entity;
 using Telegram.Bot;
 
-namespace DurgerKing.Extentions
+namespace DurgerKing
 {
-    public static class ServiceExtensions
+    public static class ServiceCollectionExtensions
     {
         public static IApplicationBuilder UseHealth(this IApplicationBuilder app)
         {
