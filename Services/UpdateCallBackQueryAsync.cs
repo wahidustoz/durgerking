@@ -27,8 +27,8 @@ public partial class UpdateHandler
             new KeyboardButton[] { KeyboardButton.WithRequestContact ("Contact ☎️") },
         };
         await client.SendTextMessageAsync(
-            chatId,
-            "Send your contact",
+            chatId: chatId,
+            text: "Send your contact",
             replyMarkup: new ReplyKeyboardMarkup(keyboardLayout) { ResizeKeyboard = true },
             cancellationToken: cancellationToken);
     }

@@ -100,10 +100,10 @@ public partial class UpdateHandler
         });
         var contactText = $"{contact.FirstName} {contact.LastName},PhoneNumber: {contact.PhoneNumber}";
         await botClient.SendTextMessageAsync(
-                message.Chat.Id,
-                contactText,
-                replyMarkup: inlineKeyboard,
-                cancellationToken: cancellationToken);
+            chatId: message.Chat.Id,
+            text: contactText,
+            replyMarkup: inlineKeyboard,
+            cancellationToken: cancellationToken);
     }
 
     public async Task SendSelectLanguageInlineAsync(ITelegramBotClient client,long chatId,long userId,CancellationToken cancellationToken)
