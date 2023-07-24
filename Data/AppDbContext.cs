@@ -9,6 +9,7 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<Category> Categories { get; set; }
     public DbSet<Product> Products { get; set; }
     public DbSet<ProductMedium> ProductMedia { get; set; }
+    public DbSet<Contact> Contacts { get; set; }
 
     public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options) { }
@@ -91,6 +92,15 @@ public class AppDbContext : DbContext, IAppDbContext
             .HasForeignKey(m => m.ProductId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Contact>()
+            .HasKey(u => u.Id);
+            
+        modelBuilder.Entity<User>()
+            .HasOne(u => u.Contact)
+            .WithOne(c => c.User)
+            .HasForeignKey<Contact>(c => c.Id)
+            .HasPrincipalKey<User>(u => u.Id);
 
         base.OnModelCreating(modelBuilder);
     }
