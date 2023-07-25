@@ -12,6 +12,9 @@ public partial class UpdateHandler
     {
         var task = query.Data switch
         {
+            "settings.language" => SendSelectLanguageInlineAsync(client, query.Message.Chat.Id, query.From.Id,cancellationToken),
+            _ when query.Data.Split(".").First().Equals("language")
+                => HandleLanguageCallbackAsync(client,query,cancellationToken),
             _ when query.Data.Contains("language")
                 => HandleLanguageCallbackAsync(client, query, cancellationToken),
             _ when query.Data.Contains("update")
