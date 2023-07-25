@@ -1,5 +1,5 @@
 using System.Globalization;
-using DurgerKing.Entity.Data;
+using DurgerKing.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using Telegram.Bot;

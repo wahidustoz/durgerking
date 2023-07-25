@@ -1,7 +1,6 @@
 using System.Text.Json.Serialization;
 using DurgerKing.Dtos;
-using DurgerKing.Entity;
-using DurgerKing.Entity.Data;
+using DurgerKing.Data;
 using Durgerking.Filters;
 using DurgerKing.Services;
 using durgerking.Validators;
@@ -9,6 +8,7 @@ using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
+using DurgerKing;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,5 +37,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseHealth();
 app.MapControllers();
+
 app.Run();

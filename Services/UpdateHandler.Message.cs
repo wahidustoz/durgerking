@@ -18,6 +18,28 @@ public partial class UpdateHandler
             await SelectSettingsAsync(botClient, message, cancellationToken);
         else if (message.Text == "Language 🎏")
             await SendSelectLanguageInlineAsync(botClient,message.From.Id,message.Chat.Id,cancellationToken);
+        else if(message.Text == "Contact ☎️")
+            await CheckContactAsync(botClient, message, cancellationToken);
+        else if(message.Contact is not null)
+            await UpsertContactAsync(botClient, message, cancellationToken);
+    }
+
+    private async Task UpsertContactAsync(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
+    {
+        var user = await dbContext.Users
+            .Where(u => u.Id == message.From.Id)
+            .Include(u => u.Contact)
+            .FirstOrDefaultAsync(cancellationToken);
+        
+        user.Contact = new DurgerKing.Entity.Contact
+        {
+            PhoneNumber = message.Contact.PhoneNumber,
+            FirstName = message.From.FirstName,
+            LastName = message.From.LastName,
+            Vcard = message.Contact.Vcard,
+        };
+        await dbContext.SaveChangesAsync(cancellationToken);
+        await SendContactInfoAsync(botClient, message, user.Contact, cancellationToken);
     }
 
     private async Task SendGreetingMessageAsycn(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
@@ -51,7 +73,39 @@ public partial class UpdateHandler
             replyMarkup: new ReplyKeyboardMarkup(keyboardLayout) { ResizeKeyboard = true },
             cancellationToken: cancellationToken);
     }
-    
+
+    private async Task CheckContactAsync(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
+    {
+        var user = await dbContext.Users
+            .Where(u => u.Id == message.From.Id)
+            .Include(u => u.Contact)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        var contact = user.Contact;
+
+        if(contact == null)
+            await SendContactRequestAsync(botClient, message.Chat.Id, cancellationToken);
+        else
+            await SendContactInfoAsync(botClient, message, contact, cancellationToken);
+    }
+
+    private static async Task SendContactInfoAsync(ITelegramBotClient botClient, Message message, Entity.Contact contact, CancellationToken cancellationToken)
+    {
+        InlineKeyboardMarkup inlineKeyboard = new(new[]
+        {
+            new[]
+            {
+                InlineKeyboardButton.WithCallbackData(text: "Update", callbackData: "contact-update"),
+            },
+        });
+        var contactText = $"{contact.FirstName} {contact.LastName},PhoneNumber: {contact.PhoneNumber}";
+        await botClient.SendTextMessageAsync(
+            chatId: message.Chat.Id,
+            text: contactText,
+            replyMarkup: inlineKeyboard,
+            cancellationToken: cancellationToken);
+    }
+
     public async Task SendSelectLanguageInlineAsync(ITelegramBotClient client,long chatId,long userId,CancellationToken cancellationToken)
     {
         var user = await dbContext.Users.FirstAsync(u => u.Id == userId,cancellationToken);

@@ -1,6 +1,7 @@
+using DurgerKing.Entity;
 using Microsoft.EntityFrameworkCore;
 
-namespace DurgerKing.Entity.Data;
+namespace DurgerKing.Data;
 
 public interface IAppDbContext
 {
@@ -8,5 +9,6 @@ public interface IAppDbContext
     DbSet<Category> Categories { get; set; }
     DbSet<Product> Products { get; set; }
     DbSet<ProductMedium> ProductMedia { get; set; }
+    DbSet<Contact> Contacts { get; set; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
