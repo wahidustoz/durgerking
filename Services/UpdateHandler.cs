@@ -45,8 +45,8 @@ public partial class UpdateHandler : IUpdateHandler
             controlLocalizer = scope.ServiceProvider.GetRequiredService<IStringLocalizer<Resources.Control>>();
 
             var user = await UpsertUserAsync(update, cancellationToken);
-            CultureInfo.CurrentCulture = new CultureInfo("uz");
-            CultureInfo.CurrentUICulture = new CultureInfo("uz");
+            CultureInfo.CurrentCulture = new CultureInfo(user.Language);
+            CultureInfo.CurrentUICulture = new CultureInfo(user.Language);
     
             var handleTask = update.Type switch
             {
