@@ -20,8 +20,18 @@ public partial class UpdateHandler
             await SendSelectLanguageInlineAsync(botClient,message.From.Id,message.Chat.Id,cancellationToken);
         else if(message.Text == "Locations 📌")
             await SendShowAddButtonsAsync(botClient, message, cancellationToken);
+        else if(message.Location is not null)
+            await UpsertLocationAsync(botClient, message, cancellationToken);
+    }
+
+    private async Task UpsertLocationAsync(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
+    {
+        var user = await dbContext.Users
+            .Where(u => u.Id == message.From.Id)
+            .Include(u => u.Locations)
+            .FirstOrDefaultAsync(cancellationToken);
         
-        if(message.Location is not null)
+        if(user.Locations.Count() != 3)
         {
             var addressText = await addressService.GetAddressTextAsync(
                 latitude: message.Location.Latitude,
@@ -29,12 +39,22 @@ public partial class UpdateHandler
                 cancellationToken: cancellationToken
             );
 
+            var location = new DurgerKing.Entity.Location
+            {
+                Latitude = Convert.ToDecimal(message.Location.Latitude),
+                Longitute = Convert.ToDecimal(message.Location.Longitude),
+                Address = addressText  
+            };
+
+            user.Locations.Add(location);
+
             await botClient.SendTextMessageAsync(
                 chatId: message.Chat.Id,
                 text: addressText,
                 cancellationToken: cancellationToken
             );
         }
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 
     private async Task SendGreetingMessageAsycn(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
@@ -98,10 +118,21 @@ public partial class UpdateHandler
 
     private async Task SendShowAddButtonsAsync(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
     {
-        var keyboardLayout = new KeyboardButton[][]
-        {
-            new KeyboardButton[] { "👁", KeyboardButton.WithRequestLocation("➕")},
-        };
+        var user = await dbContext.Users
+            .Where(u => u.Id == message.From.Id)
+            .Include(u => u.Locations)
+            .FirstOrDefaultAsync(cancellationToken);
+        
+        var keyboardLayout = user.Locations.Count() < 3 ? 
+            new KeyboardButton[][]
+            {
+                new KeyboardButton[] {"Show locations 👁", KeyboardButton.WithRequestLocation("Add location ➕")},
+            }
+            :
+            new KeyboardButton[][]
+            {
+                new KeyboardButton[] {"Show locations 👁"},
+            };
 
         await botClient.SendTextMessageAsync(
             chatId: message.Chat.Id,

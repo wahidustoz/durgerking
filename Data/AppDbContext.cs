@@ -99,7 +99,7 @@ public class AppDbContext : DbContext, IAppDbContext
         modelBuilder.Entity<User>()
             .HasMany(p => p.Locations)
             .WithOne(m => m.User)
-            .HasForeignKey(m => m.OwnerId)
+            .HasForeignKey(m => m.UserId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
 
