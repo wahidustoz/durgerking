@@ -25,7 +25,10 @@ public partial class UpdateHandler
         else if(message.Text == "Locations 📌")
             await SendShowAddButtonsAsync(botClient, message, cancellationToken);
         else if(message.Location is not null)
+        {
             await UpsertLocationAsync(botClient, message, cancellationToken);
+            await SendShowAddButtonsAsync(botClient, message, cancellationToken);
+        }
     }
 
     private async Task UpsertLocationAsync(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
@@ -47,7 +50,8 @@ public partial class UpdateHandler
             {
                 Latitude = Convert.ToDecimal(message.Location.Latitude),
                 Longitute = Convert.ToDecimal(message.Location.Longitude),
-                Address = addressText  
+                Address = addressText,
+                IsActive = true
             };
 
             user.Locations.Add(location);
@@ -177,21 +181,22 @@ public partial class UpdateHandler
             .Include(u => u.Locations)
             .FirstOrDefaultAsync(cancellationToken);
         
-        var keyboardLayout = user.Locations.Count() < 3 ? 
-            new KeyboardButton[][]
+        InlineKeyboardMarkup keyboardLayout = user.Locations.Count() < 3 ? 
+            new InlineKeyboardButton[]
             {
-                new KeyboardButton[] {"Show locations 👁", KeyboardButton.WithRequestLocation("Add location ➕")},
+                InlineKeyboardButton.WithCallbackData(text: "Show locations 👁", callbackData: "showLocations"),
+                InlineKeyboardButton.WithCallbackData(text: "Add location ➕", callbackData: "addLocation")
             }
             :
-            new KeyboardButton[][]
+            new InlineKeyboardButton[]
             {
-                new KeyboardButton[] {"Show locations 👁"},
+                InlineKeyboardButton.WithCallbackData(text: "Show locations 👁", callbackData: "showLocations")
             };
 
         await botClient.SendTextMessageAsync(
             chatId: message.Chat.Id,
             text: "Select show or add location",
-            replyMarkup: new ReplyKeyboardMarkup(keyboardLayout) { ResizeKeyboard = true },
+            replyMarkup: keyboardLayout,
             cancellationToken: cancellationToken
         );
     }
