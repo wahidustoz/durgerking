@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -11,6 +12,9 @@ public partial class UpdateHandler
     {
         var task = query.Data switch
         {
+            "settings.language" => SendSelectLanguageInlineAsync(client, query.Message.Chat.Id, query.From.Id,cancellationToken),
+            _ when query.Data.Split(".").First().Equals("language")
+                => HandleLanguageCallbackAsync(client,query,cancellationToken),
             _ when query.Data.Contains("language")
                 => HandleLanguageCallbackAsync(client, query, cancellationToken),
             _ when query.Data.Contains("update")
@@ -22,14 +26,17 @@ public partial class UpdateHandler
 
     private static async Task SendContactRequestAsync(ITelegramBotClient client, long chatId, CancellationToken cancellationToken)
     {
-        var keyboardLayout = new KeyboardButton[][]
+        var inlineKeyboard = new InlineKeyboardMarkup(new[]
         {
-            new KeyboardButton[] { KeyboardButton.WithRequestContact ("Contact ☎️") },
-        };
+            new[]
+            {
+                InlineKeyboardButton.WithCallbackData("Request Contact ☎️", "contact.request"),
+            }
+        });
         await client.SendTextMessageAsync(
             chatId: chatId,
             text: "Send your contact",
-            replyMarkup: new ReplyKeyboardMarkup(keyboardLayout) { ResizeKeyboard = true },
+            replyMarkup: inlineKeyboard,
             cancellationToken: cancellationToken);
     }
 
@@ -42,4 +49,4 @@ public partial class UpdateHandler
         await client.DeleteMessageAsync(query.Message.Chat.Id, query.Message.MessageId, cancellationToken);
         await SendSelectLanguageInlineAsync(client, query.From.Id, query.Message.Chat.Id, cancellationToken);
     }
-}
+} 

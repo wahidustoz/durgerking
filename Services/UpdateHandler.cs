@@ -47,7 +47,7 @@ public partial class UpdateHandler : IUpdateHandler
             var user = await UpsertUserAsync(update, cancellationToken);
             CultureInfo.CurrentCulture = new CultureInfo(user.Language);
             CultureInfo.CurrentUICulture = new CultureInfo(user.Language);
-
+    
             var handleTask = update.Type switch
             {
                 UpdateType.Message => HandleMessageAsync(botClient, update.Message, cancellationToken),
