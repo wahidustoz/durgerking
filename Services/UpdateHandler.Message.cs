@@ -91,12 +91,12 @@ public partial class UpdateHandler
         {
             new[]
             {
-                InlineKeyboardButton.WithCallbackData("Settings ⚙️", "settings"),
-                InlineKeyboardButton.WithCallbackData("Menu 🍔", "menu")
+                InlineKeyboardButton.WithCallbackData(controlLocalizer["settings-msg"], "settings"),
+                InlineKeyboardButton.WithCallbackData(controlLocalizer["menu-msg"], "menu")
             },
             new[]
             {
-                InlineKeyboardButton.WithCallbackData("Orders 📝", "orders")
+                InlineKeyboardButton.WithCallbackData(controlLocalizer["orders-msg"], "orders")
             }
         });
 
@@ -113,12 +113,12 @@ public partial class UpdateHandler
         {
             new[]
             {
-                InlineKeyboardButton.WithCallbackData("Language 🎏", "settings.language"),
-                InlineKeyboardButton.WithCallbackData("Locations 📌", "settings.locations"),
+                InlineKeyboardButton.WithCallbackData(controlLocalizer["language-msg"], "settings.language"),
+                InlineKeyboardButton.WithCallbackData(controlLocalizer["locations-msg"], "settings.locations"),
             },
             new[]
             {
-                InlineKeyboardButton.WithCallbackData("Contact ☎️", "settings.contact"),
+                InlineKeyboardButton.WithCallbackData(controlLocalizer["contact-msg"], "settings.contact"),
             },
         });
 
