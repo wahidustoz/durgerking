@@ -40,7 +40,7 @@ public partial class UpdateHandler
             cancellationToken: cancellationToken);
     }
 
-    private static async Task SendContactRequestAsync(ITelegramBotClient client, long chatId, CancellationToken cancellationToken)
+    private async Task SendContactRequestAsync(ITelegramBotClient client, long chatId, CancellationToken cancellationToken)
     {
         var inlineKeyboard = new InlineKeyboardMarkup(new[]
         {

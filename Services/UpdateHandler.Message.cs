@@ -107,7 +107,7 @@ public partial class UpdateHandler
             cancellationToken: cancellationToken);
     }
 
-    private static async Task SelectSettingsAsync(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
+    private async Task SelectSettingsAsync(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
     {
         var inlineKeyboard = new InlineKeyboardMarkup(new[]
         {
