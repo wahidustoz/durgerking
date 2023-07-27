@@ -144,7 +144,7 @@ public partial class UpdateHandler
             await SendContactInfoAsync(botClient, message, contact, cancellationToken);
     }
 
-    private static async Task SendContactInfoAsync(ITelegramBotClient botClient, Message message, Entity.Contact contact, CancellationToken cancellationToken)
+    private async Task SendContactInfoAsync(ITelegramBotClient botClient, Message message, Entity.Contact contact, CancellationToken cancellationToken)
     {
         InlineKeyboardMarkup inlineKeyboard = new(new[]
         {
