@@ -13,7 +13,8 @@ using DurgerKing;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers()
-    .AddMvcOptions(o => o.Filters.Add<AsyncFluentAutoValidation>(AsyncFluentAutoValidation.OrderLowerThanModelStateInvalidFilter))
+    .AddMvcOptions(options => 
+        options.Filters.Add<AsyncFluentAutoValidation>(AsyncFluentAutoValidation.OrderLowerThanModelStateInvalidFilter))
     .AddJsonOptions(options =>
         options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull);
 
@@ -30,11 +31,9 @@ builder.Services.AddSingleton<ITelegramBotClient, TelegramBotClient>(
 builder.Services.AddDbContext<IAppDbContext, AppDbContext>(
     options => options.UseNpgsql(builder.Configuration.GetConnectionString("PostgresConnection")));
 
-builder.Services.AddHttpClient("GeoCode", client =>
-{
-    client.BaseAddress = new Uri(builder.Configuration.GetValue("GeoCodeBaseUrl", string.Empty));
-});
-
+builder.Services.AddHttpClient(
+    name: "GeoCode",
+    configureClient: c => c.BaseAddress = new Uri(builder.Configuration.GetValue("Geocode:BaseUrl", string.Empty)));
 
 var app = builder.Build();
 
