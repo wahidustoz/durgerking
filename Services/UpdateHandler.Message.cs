@@ -91,12 +91,12 @@ public partial class UpdateHandler
         {
             new[]
             {
-                InlineKeyboardButton.WithCallbackData(controlLocalizer["settings-msg"], "settings"),
-                InlineKeyboardButton.WithCallbackData(controlLocalizer["menu-msg"], "menu")
+                InlineKeyboardButton.WithCallbackData(controlLocalizer["btn-settings"], "settings"),
+                InlineKeyboardButton.WithCallbackData(controlLocalizer["btn-menu"], "menu")
             },
             new[]
             {
-                InlineKeyboardButton.WithCallbackData(controlLocalizer["orders-msg"], "orders")
+                InlineKeyboardButton.WithCallbackData(controlLocalizer["btn-orders"], "orders")
             }
         });
 
@@ -113,12 +113,12 @@ public partial class UpdateHandler
         {
             new[]
             {
-                InlineKeyboardButton.WithCallbackData(controlLocalizer["language-msg"], "settings.language"),
-                InlineKeyboardButton.WithCallbackData(controlLocalizer["locations-msg"], "settings.locations"),
+                InlineKeyboardButton.WithCallbackData(controlLocalizer["btn-language"], "settings.language"),
+                InlineKeyboardButton.WithCallbackData(controlLocalizer["btn-locations"], "settings.locations"),
             },
             new[]
             {
-                InlineKeyboardButton.WithCallbackData(controlLocalizer["contact-msg"], "settings.contact"),
+                InlineKeyboardButton.WithCallbackData(controlLocalizer["btn-contact"], "settings.contact"),
             },
         });
 
