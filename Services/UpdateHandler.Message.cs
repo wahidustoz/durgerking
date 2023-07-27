@@ -12,19 +12,19 @@ public partial class UpdateHandler
         var username = message.From?.Username ?? message.From.FirstName;
         logger.LogInformation("Received message from {username}", username);
 
-        if(message.Text == "/start" || message.Text == "/help")
+        if (message.Text == "/start" || message.Text == "/help")
             await SendGreetingMessageAsycn(botClient, message, cancellationToken);
-        else if(message.Text == "/settings")
+        else if (message.Text == "/settings")
             await SelectSettingsAsync(botClient, message, cancellationToken);
         else if (message.Text == "Language 🎏")
-            await SendSelectLanguageInlineAsync(botClient,message.From.Id,message.Chat.Id,cancellationToken);
-        else if(message.Text == "Contact ☎️")
+            await SendSelectLanguageInlineAsync(botClient, message.From.Id, message.Chat.Id, cancellationToken);
+        else if (message.Text == "Contact ☎️")
             await CheckContactAsync(botClient, message, cancellationToken);
-        else if(message.Contact is not null)
+        else if (message.Contact is not null)
             await UpsertContactAsync(botClient, message, cancellationToken);
-        else if(message.Text == "Locations 📌")
+        else if (message.Text == "Locations 📌")
             await SendShowAddButtonsAsync(botClient, message, cancellationToken);
-        else if(message.Location is not null)
+        else if (message.Location is not null)
         {
             await UpsertLocationAsync(botClient, message, cancellationToken);
             await SendShowAddButtonsAsync(botClient, message, cancellationToken);
@@ -37,8 +37,8 @@ public partial class UpdateHandler
             .Where(u => u.Id == message.From.Id)
             .Include(u => u.Locations)
             .FirstOrDefaultAsync(cancellationToken);
-        
-        if(user.Locations.Count() != 3)
+
+        if (user.Locations.Count() != 3)
         {
             var addressText = await addressService.GetAddressTextAsync(
                 latitude: message.Location.Latitude,
@@ -71,7 +71,7 @@ public partial class UpdateHandler
             .Where(u => u.Id == message.From.Id)
             .Include(u => u.Contact)
             .FirstOrDefaultAsync(cancellationToken);
-        
+
         user.Contact = new DurgerKing.Entity.Contact
         {
             PhoneNumber = message.Contact.PhoneNumber,
@@ -87,7 +87,7 @@ public partial class UpdateHandler
     {
         var username = message.From?.Username ?? message.From.FirstName;
         logger.LogInformation("Username :  {username}", username);
-        await botResponseService.SendGreetingAsync(username,message.Chat.Id,cancellationToken);
+        await botResponseService.SendGreetingAsync(username, message.Chat.Id, cancellationToken);
     }
 
     private static async Task SelectSettingsAsync(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
@@ -121,7 +121,7 @@ public partial class UpdateHandler
 
         var contact = user.Contact;
 
-        if(contact == null)
+        if (contact == null)
             await SendContactRequestAsync(botClient, message.Chat.Id, cancellationToken);
         else
             await SendContactInfoAsync(botClient, message, contact, cancellationToken);
@@ -144,11 +144,11 @@ public partial class UpdateHandler
             cancellationToken: cancellationToken);
     }
 
-    public async Task SendSelectLanguageInlineAsync(ITelegramBotClient client,long chatId,long userId,CancellationToken cancellationToken)
+    public async Task SendSelectLanguageInlineAsync(ITelegramBotClient client, long chatId, long userId, CancellationToken cancellationToken)
     {
-        var user = await dbContext.Users.FirstAsync(u => u.Id == userId,cancellationToken);
+        var user = await dbContext.Users.FirstAsync(u => u.Id == userId, cancellationToken);
         var inlineKeyboard = new InlineKeyboardMarkup(new[]
-        { 
+        {
             new[]
             {
                 InlineKeyboardButton.WithCallbackData(
@@ -160,15 +160,15 @@ public partial class UpdateHandler
                 InlineKeyboardButton.WithCallbackData(
                      text: $"{GetCheckmarkOrEmpty(user.Language, "ru")}Русский🇷🇺",
                      callbackData : "language.ru")
-          
+
             }
         });
-        
+
         await client.SendTextMessageAsync(
-            chatId : chatId,
+            chatId: chatId,
             text: "Please Select a language",
-            replyMarkup : inlineKeyboard,
-            cancellationToken : cancellationToken);
+            replyMarkup: inlineKeyboard,
+            cancellationToken: cancellationToken);
     }
 
     private async Task SendShowAddButtonsAsync(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
@@ -177,18 +177,38 @@ public partial class UpdateHandler
             .Where(u => u.Id == message.From.Id)
             .Include(u => u.Locations)
             .FirstOrDefaultAsync(cancellationToken);
-        
-        InlineKeyboardMarkup keyboardLayout = user.Locations.Count() < 3 ? 
-            new InlineKeyboardButton[]
-            {
-                InlineKeyboardButton.WithCallbackData(text: "Show locations 👁", callbackData: "showLocations"),
-                InlineKeyboardButton.WithCallbackData(text: "Add location ➕", callbackData: "addLocation")
+
+        // InlineKeyboardMarkup keyboardLayout = user.Locations.Count() < 3 ?
+        //     new InlineKeyboardButton[]
+        //     {
+        //         InlineKeyboardButton.WithCallbackData(text: "Show locations 👁", callbackData: "showLocations"),
+        //         InlineKeyboardButton.WithCallbackData(text: "Add location ➕", callbackData: "addLocation")
+        //     }
+        //     :
+        //     new InlineKeyboardButton[]
+        //     {
+        //         InlineKeyboardButton.WithCallbackData(text: "Show locations 👁", callbackData: "showLocations")
+        //     };
+
+        var texts = new string[][][] 
+        { 
+            new string[][] 
+            { 
+                new string[] { "Show locations 👁", "showLocations" },
+                new string[] { "Add location ➕", "addLocation" } 
             }
-            :
-            new InlineKeyboardButton[]
-            {
-                InlineKeyboardButton.WithCallbackData(text: "Show locations 👁", callbackData: "showLocations")
-            };
+        };
+
+        var texts2 = new string[][][] 
+        { 
+            new string[][] 
+            { 
+                new string[] { "Show locations 👁", "showLocations" }
+            } 
+        };
+
+        InlineKeyboardMarkup keyboardLayout = user.Locations.Count() < 3 ?
+            GetInlineKeyboard(texts) : GetInlineKeyboard(texts2);
 
         await botClient.SendTextMessageAsync(
             chatId: message.Chat.Id,
@@ -201,5 +221,9 @@ public partial class UpdateHandler
     private static string GetCheckmarkOrEmpty(string userLanguage, string languageCode)
         => string.Equals(userLanguage, languageCode, StringComparison.InvariantCultureIgnoreCase)
         ? "✅"
-        :string.Empty;
+        : string.Empty;
+
+    private InlineKeyboardMarkup GetInlineKeyboard(string[][][] texts) =>
+        new InlineKeyboardMarkup(
+            texts.Select(i => i.Select(j => InlineKeyboardButton.WithCallbackData(j[0], j[1]))));
 }
