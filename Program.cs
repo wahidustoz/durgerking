@@ -21,11 +21,15 @@ builder.Services.AddLocalization();
 builder.Services.AddTransient<IValidator<CreateProductDto>, CreateProductValidator>();
 builder.Services.AddTransient<IValidator<UpdateProductDto>, UpdateProductValidator>();
 builder.Services.AddTransient<AddressService>();
+builder.Services.AddTransient<IBotResponseService, BotResponseService>();
 builder.Services.AddTransient<IUpdateHandler, UpdateHandler>();
 builder.Services.AddHostedService<BotStartingBackgroundService>();
+
 builder.Services.AddSwaggerGen();
+
 builder.Services.AddSingleton<ITelegramBotClient, TelegramBotClient>(
     p => new TelegramBotClient(builder.Configuration.GetValue("BotApiKey", string.Empty)));
+
 
 builder.Services.AddDbContext<IAppDbContext, AppDbContext>(
     options => options.UseNpgsql(builder.Configuration.GetConnectionString("PostgresConnection")));
