@@ -5,7 +5,7 @@
 namespace durgerking.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class addemojing : Migration
+    public partial class Category_Emoji_Added : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

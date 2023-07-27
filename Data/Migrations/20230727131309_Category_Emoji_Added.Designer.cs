@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace durgerking.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20230725090554_add_imoje")]
-    partial class add_imoje
+    [Migration("20230727131309_Category_Emoji_Added")]
+    partial class Category_Emoji_Added
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
