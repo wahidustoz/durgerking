@@ -54,11 +54,11 @@ public class AppDbContext : DbContext, IAppDbContext
 
         modelBuilder.Entity<Category>()
             .HasData(
-                new { Id = 1, Name = "Food" },
-                new { Id = 2, Name = "Snack" },
-                new { Id = 3, Name = "Drink" },
-                new { Id = 4, Name = "Salad" },
-                new { Id = 5, Name = "Set" });
+                new { Id = 1, Name = "Ovqat 🍜" },
+                new { Id = 2, Name = "Gazak 🍖" },
+                new { Id = 3, Name = "Ichimlik 🍹" },
+                new { Id = 4, Name = "Salat 🥗" },
+                new { Id = 5, Name = "Set 🍔🍹" });
 
         modelBuilder.Entity<Product>()
             .HasKey(c => c.Id);
@@ -95,7 +95,7 @@ public class AppDbContext : DbContext, IAppDbContext
 
         modelBuilder.Entity<Contact>()
             .HasKey(u => u.Id);
-            
+
         modelBuilder.Entity<User>()
             .HasOne(u => u.Contact)
             .WithOne(c => c.User)
