@@ -86,25 +86,8 @@ public partial class UpdateHandler
     private async Task SendGreetingMessageAsycn(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
     {
         var username = message.From?.Username ?? message.From.FirstName;
-        var greeting = messageLocalizer["greeting-msg", username]; 
-        var inlineKeyboard = new InlineKeyboardMarkup(new[]
-        {
-            new[]
-            {
-                InlineKeyboardButton.WithCallbackData("Settings ⚙️", "settings"),
-                InlineKeyboardButton.WithCallbackData("Menu 🍔", "menu")
-            },
-            new[]
-            {
-                InlineKeyboardButton.WithCallbackData("Orders 📝", "orders")
-            }
-        });
-
-        await botClient.SendTextMessageAsync(
-            text: greeting,
-            chatId: message.Chat.Id,
-            replyMarkup: inlineKeyboard,
-            cancellationToken: cancellationToken);
+        logger.LogInformation("Username :  {username}", username);
+        await botResponseService.SendGreetingAsync(username,message.Chat.Id,cancellationToken);
     }
 
     private static async Task SelectSettingsAsync(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)

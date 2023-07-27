@@ -1,23 +1,51 @@
+using DurgerKing.Resources;
+using Microsoft.Extensions.Localization;
+using Telegram.Bot;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace DurgerKing.Services;
 
 public class BotResponseService : IBotResponseService
 {
-    public async ValueTask<(long ChatId, long MessageId)> SendGreetingAsync(long chatId, CancellationToken cancellationToken = default)
+    private readonly ITelegramBotClient botClient;
+    private readonly IServiceScopeFactory serviceScopeFactory;
+    private IStringLocalizer<Resources.Message> messageLocalizer;
+    public BotResponseService(
+        ITelegramBotClient botClient,
+        IServiceScopeFactory serviceScopeFactory
+    )
     {
-        var username = message.From?.Username ?? message.From.FirstName;
-        var greeting = messageLocalizer["greeting-msg", username]; 
-        var replyKeyboardMarkup = new ReplyKeyboardMarkup(new KeyboardButton[][]
+        this.botClient = botClient;
+        this.serviceScopeFactory = serviceScopeFactory;
+    }
+    public async ValueTask<(long ChatId, long MessageId)> SendGreetingAsync(
+        string username,
+        long chatId,
+        CancellationToken cancellationToken = default)
+    {
+        using (var scope = serviceScopeFactory.CreateScope())
+        {
+            messageLocalizer = scope.ServiceProvider.GetRequiredService<IStringLocalizer<Resources.Message>>();
+            var inlineKeyboard = new InlineKeyboardMarkup(new[]
             {
-                new KeyboardButton[] { "Settings ⚙️", "Menu 🍔" },
-                new KeyboardButton[] { "Orders 📝" }
-            }) { ResizeKeyboard = true };
+            new[]
+            {
+                InlineKeyboardButton.WithCallbackData("Settings ⚙️", "settings"),
+                InlineKeyboardButton.WithCallbackData("Menu 🍔", "menu")
+            },
+            new[]
+            {
+                InlineKeyboardButton.WithCallbackData("Orders 📝", "orders")
+            }
+        });
+            var greeting = messageLocalizer["greeting-msg", username];
+            var message = await botClient.SendTextMessageAsync(
+                text: greeting,
+                chatId: chatId,
+                replyMarkup: inlineKeyboard,
+                cancellationToken: cancellationToken);
 
-        await botClient.SendTextMessageAsync(
-            text: greeting,
-            chatId: message.Chat.Id,
-            replyMarkup: replyKeyboardMarkup,
-            cancellationToken: cancellationToken);
+            return (message.Chat.Id, message.MessageId);
+        }
     }
 }
