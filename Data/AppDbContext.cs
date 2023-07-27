@@ -10,6 +10,7 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<Product> Products { get; set; }
     public DbSet<ProductMedium> ProductMedia { get; set; }
     public DbSet<Contact> Contacts { get; set; }
+    public DbSet<Location> Locations { get; set; }
 
     public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options) { }
@@ -101,6 +102,16 @@ public class AppDbContext : DbContext, IAppDbContext
             .WithOne(c => c.User)
             .HasForeignKey<Contact>(c => c.Id)
             .HasPrincipalKey<User>(u => u.Id);
+        
+        modelBuilder.Entity<Location>()
+            .HasKey(c => c.Id);
+        
+        modelBuilder.Entity<User>()
+            .HasMany(p => p.Locations)
+            .WithOne(m => m.User)
+            .HasForeignKey(m => m.UserId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
 
         base.OnModelCreating(modelBuilder);
     }
