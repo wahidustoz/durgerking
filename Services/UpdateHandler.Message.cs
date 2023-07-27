@@ -13,11 +13,14 @@ public partial class UpdateHandler
         logger.LogInformation("Received message from {username}", username);
 
         if(message.Text == "/start" || message.Text == "/help")
-            await SendGreetingMessageAsycn(botClient, message, cancellationToken);
+        {
+            await responseService.SendGreetingAsync(message.Chat.Id, message.From.Id, cancellationToken);
+            await responseService.SendMainMenuAsync(message.Chat.Id, cancellationToken);
+        }
         else if(message.Text == "/settings")
-            await SelectSettingsAsync(botClient, message, cancellationToken);
-        else if (message.Text == "Language 🎏")
-            await SendSelectLanguageInlineAsync(botClient,message.From.Id,message.Chat.Id,cancellationToken);
+            await responseService.SendSettingsAsync(message.Chat.Id, cancellationToken);
+        else if (message.Text == "/language")
+            await responseService.SendLanguageSettingsAsync(message.Chat.Id, message.From.Id, cancellationToken);
         else if(message.Text == "Contact ☎️")
             await CheckContactAsync(botClient, message, cancellationToken);
         else if(message.Contact is not null)
@@ -83,52 +86,6 @@ public partial class UpdateHandler
         await SendContactInfoAsync(botClient, message, user.Contact, cancellationToken);
     }
 
-    private async Task SendGreetingMessageAsycn(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
-    {
-        var username = message.From?.Username ?? message.From.FirstName;
-        var greeting = messageLocalizer["greeting-msg", username]; 
-        var inlineKeyboard = new InlineKeyboardMarkup(new[]
-        {
-            new[]
-            {
-                InlineKeyboardButton.WithCallbackData("Settings ⚙️", "settings"),
-                InlineKeyboardButton.WithCallbackData("Menu 🍔", "menu")
-            },
-            new[]
-            {
-                InlineKeyboardButton.WithCallbackData("Orders 📝", "orders")
-            }
-        });
-
-        await botClient.SendTextMessageAsync(
-            text: greeting,
-            chatId: message.Chat.Id,
-            replyMarkup: inlineKeyboard,
-            cancellationToken: cancellationToken);
-    }
-
-    private static async Task SelectSettingsAsync(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
-    {
-        var inlineKeyboard = new InlineKeyboardMarkup(new[]
-        {
-            new[]
-            {
-                InlineKeyboardButton.WithCallbackData("Language 🎏", "settings.language"),
-                InlineKeyboardButton.WithCallbackData("Locations 📌", "settings.locations"),
-            },
-            new[]
-            {
-                InlineKeyboardButton.WithCallbackData("Contact ☎️", "settings.contact"),
-            },
-        });
-
-        await botClient.SendTextMessageAsync(
-            message.Chat.Id,
-            "Please select a setting:",
-            replyMarkup: inlineKeyboard,
-            cancellationToken: cancellationToken);
-    }
-
     private async Task CheckContactAsync(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
     {
         var user = await dbContext.Users
@@ -161,33 +118,6 @@ public partial class UpdateHandler
             cancellationToken: cancellationToken);
     }
 
-    public async Task SendSelectLanguageInlineAsync(ITelegramBotClient client,long chatId,long userId,CancellationToken cancellationToken)
-    {
-        var user = await dbContext.Users.FirstAsync(u => u.Id == userId,cancellationToken);
-        var inlineKeyboard = new InlineKeyboardMarkup(new[]
-        { 
-            new[]
-            {
-                InlineKeyboardButton.WithCallbackData(
-                     text: $"{GetCheckmarkOrEmpty(user.Language, "uz")}O'zbekcha🇺🇿",
-                     callbackData : "language.uz"),
-                InlineKeyboardButton.WithCallbackData(
-                     text: $"{GetCheckmarkOrEmpty(user.Language, "en")}English🇬🇧",
-                     callbackData : "language.en"),
-                InlineKeyboardButton.WithCallbackData(
-                     text: $"{GetCheckmarkOrEmpty(user.Language, "ru")}Русский🇷🇺",
-                     callbackData : "language.ru")
-          
-            }
-        });
-        
-        await client.SendTextMessageAsync(
-            chatId : chatId,
-            text: "Please Select a language",
-            replyMarkup : inlineKeyboard,
-            cancellationToken : cancellationToken);
-    }
-
     private async Task SendShowAddButtonsAsync(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
     {
         var user = await dbContext.Users
@@ -214,9 +144,4 @@ public partial class UpdateHandler
             cancellationToken: cancellationToken
         );
     }
-
-    private static string GetCheckmarkOrEmpty(string userLanguage, string languageCode)
-        => string.Equals(userLanguage, languageCode, StringComparison.InvariantCultureIgnoreCase)
-        ? "✅"
-        :string.Empty;
 }

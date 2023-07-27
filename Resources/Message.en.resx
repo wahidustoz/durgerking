@@ -117,8 +117,12 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="greeting-msg" xml:space="preserve">
+  <data name="msg.greeting" xml:space="preserve">
     <value>Greetings, hungry {0}! 🌟🍔 Durgerking is here to make your day scrumptiously delightful. Join us for a burger adventure filled with sizzling flavors, crunchy goodness, and pure happiness. Get ready to take a big bite and experience burger heaven! 🍟😍</value>
+    <comment/>
+  </data>
+  <data name="msg.mainmenu" xml:space="preserve">
+    <value>Main menu</value>
     <comment/>
   </data>
 </root>

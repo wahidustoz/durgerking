@@ -15,7 +15,8 @@ public partial class UpdateHandler : IUpdateHandler
     private readonly IServiceScopeFactory serviceScopeFactory;
     private readonly AddressService addressService;
     private IStringLocalizer<Resources.Message> messageLocalizer;
-    private IStringLocalizer<Resources.Control> controlLocalizer;
+    private IStringLocalizer<Resources.Button> controlLocalizer;
+    private IBotResponseService responseService;
     private IAppDbContext dbContext;
 
     public UpdateHandler(
@@ -45,7 +46,8 @@ public partial class UpdateHandler : IUpdateHandler
         {
             dbContext = scope.ServiceProvider.GetRequiredService<IAppDbContext>();
             messageLocalizer = scope.ServiceProvider.GetRequiredService<IStringLocalizer<Resources.Message>>();
-            controlLocalizer = scope.ServiceProvider.GetRequiredService<IStringLocalizer<Resources.Control>>();
+            controlLocalizer = scope.ServiceProvider.GetRequiredService<IStringLocalizer<Resources.Button>>();
+            responseService = scope.ServiceProvider.GetRequiredService<IBotResponseService>();
 
             var user = await UpsertUserAsync(update, cancellationToken);
             CultureInfo.CurrentCulture = new CultureInfo(user.Language);

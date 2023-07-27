@@ -117,27 +117,27 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="settings-msg" xml:space="preserve">
+  <data name="btn.settings" xml:space="preserve">
     <value>Settings ⚙️</value>
     <comment/>
   </data>
-  <data name="menu-msg" xml:space="preserve">
+  <data name="btn.menu" xml:space="preserve">
     <value>Menu 🍔</value>
     <comment/>
   </data>
-  <data name="orders-msg" xml:space="preserve">
+  <data name="btn.orders" xml:space="preserve">
     <value>Orders 📝</value>
     <comment/>
   </data>
-  <data name="language-msg" xml:space="preserve">
+  <data name="btn.settings.language" xml:space="preserve">
     <value>Language 🎏</value>
     <comment/>
   </data>
-  <data name="locations-msg" xml:space="preserve">
+  <data name="btn.settings.locations" xml:space="preserve">
     <value>Locations 📌</value>
     <comment/>
   </data>
-  <data name="contact-msg" xml:space="preserve">
+  <data name="btn.settings.contact" xml:space="preserve">
     <value>Contact ☎️</value>
     <comment/>
   </data>

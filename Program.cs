@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using DurgerKing;
+using Durgerking.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,8 @@ builder.Services.AddControllers()
 builder.Services.AddLocalization();
 builder.Services.AddTransient<IValidator<CreateProductDto>, CreateProductValidator>();
 builder.Services.AddTransient<IValidator<UpdateProductDto>, UpdateProductValidator>();
+builder.Services.AddTransient<IBotResponseService, BotResponseService>();
+builder.Services.AddTransient<ILocalizationHandler, LocalizationHandler>();
 builder.Services.AddTransient<AddressService>();
 builder.Services.AddTransient<IUpdateHandler, UpdateHandler>();
 builder.Services.AddHostedService<BotStartingBackgroundService>();
