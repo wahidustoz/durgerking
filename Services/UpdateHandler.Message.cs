@@ -22,6 +22,47 @@ public partial class UpdateHandler
             await CheckContactAsync(botClient, message, cancellationToken);
         else if(message.Contact is not null)
             await UpsertContactAsync(botClient, message, cancellationToken);
+        else if(message.Text == "Locations 📌")
+            await SendShowAddButtonsAsync(botClient, message, cancellationToken);
+        else if(message.Location is not null)
+        {
+            await UpsertLocationAsync(botClient, message, cancellationToken);
+            await SendShowAddButtonsAsync(botClient, message, cancellationToken);
+        }
+    }
+
+    private async Task UpsertLocationAsync(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
+    {
+        var user = await dbContext.Users
+            .Where(u => u.Id == message.From.Id)
+            .Include(u => u.Locations)
+            .FirstOrDefaultAsync(cancellationToken);
+        
+        if(user.Locations.Count() != 3)
+        {
+            var addressText = await addressService.GetAddressTextAsync(
+                latitude: message.Location.Latitude,
+                longitute: message.Location.Longitude,
+                cancellationToken: cancellationToken
+            );
+
+            var location = new DurgerKing.Entity.Location
+            {
+                Latitude = Convert.ToDecimal(message.Location.Latitude),
+                Longitute = Convert.ToDecimal(message.Location.Longitude),
+                Address = addressText,
+                IsActive = true
+            };
+
+            user.Locations.Add(location);
+
+            await botClient.SendTextMessageAsync(
+                chatId: message.Chat.Id,
+                text: addressText,
+                cancellationToken: cancellationToken
+            );
+        }
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 
     private async Task UpsertContactAsync(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
@@ -145,6 +186,33 @@ public partial class UpdateHandler
             text: "Please Select a language",
             replyMarkup : inlineKeyboard,
             cancellationToken : cancellationToken);
+    }
+
+    private async Task SendShowAddButtonsAsync(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
+    {
+        var user = await dbContext.Users
+            .Where(u => u.Id == message.From.Id)
+            .Include(u => u.Locations)
+            .FirstOrDefaultAsync(cancellationToken);
+        
+        InlineKeyboardMarkup keyboardLayout = user.Locations.Count() < 3 ? 
+            new InlineKeyboardButton[]
+            {
+                InlineKeyboardButton.WithCallbackData(text: "Show locations 👁", callbackData: "showLocations"),
+                InlineKeyboardButton.WithCallbackData(text: "Add location ➕", callbackData: "addLocation")
+            }
+            :
+            new InlineKeyboardButton[]
+            {
+                InlineKeyboardButton.WithCallbackData(text: "Show locations 👁", callbackData: "showLocations")
+            };
+
+        await botClient.SendTextMessageAsync(
+            chatId: message.Chat.Id,
+            text: "Select show or add location",
+            replyMarkup: keyboardLayout,
+            cancellationToken: cancellationToken
+        );
     }
 
     private static string GetCheckmarkOrEmpty(string userLanguage, string languageCode)

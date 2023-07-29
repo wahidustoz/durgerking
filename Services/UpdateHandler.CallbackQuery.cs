@@ -19,9 +19,25 @@ public partial class UpdateHandler
                 => HandleLanguageCallbackAsync(client, query, cancellationToken),
             _ when query.Data.Contains("update")
                 => SendContactRequestAsync(client, query.Message.Chat.Id, cancellationToken),
+            _ when query.Data.Contains("addLocation")
+                => SendLocationRequestAsync(client, query.Message.Chat.Id, cancellationToken),
             _ => throw new NotImplementedException($"Call back query {query.Data} not supported!")
         };
         await task;
+    }
+
+    private async Task SendLocationRequestAsync(ITelegramBotClient client, long chatId, CancellationToken cancellationToken)
+    {
+        var keyboardLayout = new KeyboardButton[][]
+        {
+            new KeyboardButton[] { KeyboardButton.WithRequestLocation("Send location 📍")},
+        };
+
+        await client.SendTextMessageAsync(
+            chatId: chatId,
+            text: "Send your location",
+            replyMarkup: new ReplyKeyboardMarkup(keyboardLayout) { ResizeKeyboard = true },
+            cancellationToken: cancellationToken);
     }
 
     private static async Task SendContactRequestAsync(ITelegramBotClient client, long chatId, CancellationToken cancellationToken)

@@ -13,16 +13,19 @@ public partial class UpdateHandler : IUpdateHandler
 {
     private readonly ILogger<UpdateHandler> logger;
     private readonly IServiceScopeFactory serviceScopeFactory;
+    private readonly AddressService addressService;
     private IStringLocalizer<Resources.Message> messageLocalizer;
     private IStringLocalizer<Resources.Control> controlLocalizer;
     private IAppDbContext dbContext;
 
     public UpdateHandler(
         ILogger<UpdateHandler> logger,
-        IServiceScopeFactory serviceScopeFactory)
+        IServiceScopeFactory serviceScopeFactory,
+        AddressService addressService)
     {
         this.logger = logger;
         this.serviceScopeFactory = serviceScopeFactory;
+        this.addressService = addressService;
     }
 
     public Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
