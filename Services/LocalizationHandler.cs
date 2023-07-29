@@ -1,7 +1,6 @@
 using System.Reflection;
 using DurgerKing.Resources;
 using Microsoft.Extensions.Localization;
-using Telegram.Bot.Requests;
 
 namespace Durgerking.Services;
 

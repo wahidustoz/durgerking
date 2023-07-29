@@ -125,4 +125,8 @@
     <value>Bosh menyu</value>
     <comment/>
   </data>
+  <data name="msg.location.request" xml:space="preserve">
+    <value>Quyidagi tugmani bosing 👇</value>
+    <comment/>
+  </data>
 </root>

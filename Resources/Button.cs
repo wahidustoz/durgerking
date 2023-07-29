@@ -11,4 +11,8 @@ public class Button
     public static string LanguagesUz => "languages.uz";
     public static string LanguagesRu => "languages.ru";
     public static string LanguagesEn => "languages.en";
+    public static string ShowLocations => "btn.locations.show";
+    public static string AddLocation => "btn.locations.add";
+    public static string LocationRequest => "btn.locations.request";
+    public static string DeleteAddress => "btn.locations.delete";
 }

@@ -141,4 +141,20 @@
     <value>Contact ☎️</value>
     <comment/>
   </data>
+  <data name="btn.locations.show" xml:space="preserve">
+    <value>Show locations 👁</value>
+    <comment/>
+  </data>
+  <data name="btn.locations.add" xml:space="preserve">
+    <value>Add location ➕</value>
+    <comment/>
+  </data>
+  <data name="btn.locations.request" xml:space="preserve">
+    <value>Share location 📍</value>
+    <comment/>
+  </data>
+  <data name="btn.locations.delete" xml:space="preserve">
+    <value>Delete ❌</value>
+    <comment/>
+  </data>
 </root>

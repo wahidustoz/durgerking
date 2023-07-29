@@ -16,4 +16,15 @@ public interface IBotResponseService
     ValueTask<(long ChatId, long MessageId)> SendSettingsAsync(
         long chatId,
         CancellationToken cancellationToken = default);
+    ValueTask<(long ChatId, long MessageId)> SendLocationKeyboardAsync(
+        long chatId,
+        long userId,
+        CancellationToken cancellationToken = default);
+    ValueTask<(long ChatId, long MessageId)> SendLocationRequestAsync(
+        long chatId,
+        CancellationToken cancellationToken = default);
+    ValueTask<(long ChatId, IEnumerable<long> MessageIds)> SendLocationsAsync(
+        long chatId,
+        long userId,
+        CancellationToken cancellationToken = default);
 }

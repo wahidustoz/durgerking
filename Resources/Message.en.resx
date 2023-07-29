@@ -125,4 +125,8 @@
     <value>Main menu</value>
     <comment/>
   </data>
+  <data name="msg.location.request" xml:space="preserve">
+    <value>Click the button below 👇</value>
+    <comment/>
+  </data>
 </root>

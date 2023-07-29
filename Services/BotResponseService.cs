@@ -1,7 +1,5 @@
 using Durgerking.Services;
-using DurgerKing.Data;
 using DurgerKing.Resources;
-using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -11,18 +9,18 @@ namespace DurgerKing.Services;
 public class BotResponseService : IBotResponseService
 {
     private readonly ILogger<BotResponseService> logger;
-    private readonly IAppDbContext dbContext;
+    private readonly IUserService userService;
     private readonly ILocalizationHandler localization;
     private readonly ITelegramBotClient botClient;
 
     public BotResponseService(
         ILogger<BotResponseService> logger,
-        IAppDbContext dbContext,
+        IUserService userService,
         ILocalizationHandler localization,
         ITelegramBotClient botClient)
     {
         this.logger = logger;
-        this.dbContext = dbContext;
+        this.userService = userService;
         this.localization = localization;
         this.botClient = botClient;
     }
@@ -32,7 +30,7 @@ public class BotResponseService : IBotResponseService
         long userId, 
         CancellationToken cancellationToken = default)
     {
-        var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+        var user = await userService.GetUserOrDefaultAsync(userId, cancellationToken);
         var name = user.Username ?? user.Fullname;
 
         logger.LogTrace("Sending a greeting to {name}", name);
@@ -50,7 +48,7 @@ public class BotResponseService : IBotResponseService
         long userId, 
         CancellationToken cancellationToken = default)
     {
-        var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+        var user = await userService.GetUserOrDefaultAsync(userId, cancellationToken);
         var languagesKeyboard = new Dictionary<string, string>
         {
             { Button.LanguagesUz, $"{GetCheckmarkOrEmpty(user.Language, "uz")}O'zbekcha🇺🇿" },
@@ -106,6 +104,73 @@ public class BotResponseService : IBotResponseService
             cancellationToken: cancellationToken);
         
         return (chatId, message.MessageId);
+    }
+
+    public async ValueTask<(long ChatId, long MessageId)> SendLocationKeyboardAsync(
+        long chatId,
+        long userId,
+        CancellationToken cancellationToken = default)
+    {
+        var user = await userService.GetUserWithLocationsOrDefaultAsync(userId, cancellationToken);
+
+        var buttons = new List<string>();
+        if(user.Locations.Any())
+            buttons.Add(Button.ShowLocations);
+        if(user.Locations.Count < 3)
+            buttons.Add(Button.AddLocation);
+
+        var keyboardMatrix = new[] { buttons.ToArray() };
+
+        var message = await botClient.SendTextMessageAsync(
+            text: $"_{localization.GetValue(Button.LocationSettings)}_",
+            chatId: chatId,
+            replyMarkup: GetInlineKeyboard(keyboardMatrix),
+            parseMode: ParseMode.Markdown,
+            cancellationToken: cancellationToken);
+        
+        return (chatId, message.MessageId);
+    }
+
+    public async ValueTask<(long ChatId, long MessageId)> SendLocationRequestAsync(
+        long chatId,
+        CancellationToken cancellationToken = default)
+    {
+        var button =  KeyboardButton.WithRequestLocation(localization.GetValue(Button.LocationRequest));
+        var keyboardLayout = new[] { new[] { button } };
+
+        var message = await botClient.SendTextMessageAsync(
+            chatId: chatId,
+            text: $"*{localization.GetValue(Message.LocationRequest)}*",
+            replyMarkup: new ReplyKeyboardMarkup(keyboardLayout) { ResizeKeyboard = true },
+            parseMode: ParseMode.Markdown,
+            cancellationToken: cancellationToken);
+
+        return (chatId, message.MessageId);
+    }
+
+    public async ValueTask<(long ChatId, IEnumerable<long> MessageIds)> SendLocationsAsync(long chatId, long userId, CancellationToken cancellationToken = default)
+    {
+        var messageIds = new List<long>();
+        var user = await userService.GetUserWithLocationsOrDefaultAsync(userId, cancellationToken);
+        foreach(var location in user.Locations)
+        {
+            var deleteButton  = new[] { new[] 
+            { 
+                InlineKeyboardButton.WithCallbackData(
+                    text: localization.GetValue(Button.DeleteAddress), 
+                    callbackData: Button.DeleteAddress + $".{location.Id}") 
+            } };
+
+            var message = await botClient.SendTextMessageAsync(
+                chatId: chatId,
+                text: location.Address,
+                replyMarkup: new InlineKeyboardMarkup(deleteButton),
+                parseMode: ParseMode.Markdown,
+                cancellationToken: cancellationToken);
+            messageIds.Add(message.MessageId); 
+        }
+
+        return (chatId, messageIds);
     }
 
     private InlineKeyboardMarkup GetInlineKeyboard(string[][] matrix)

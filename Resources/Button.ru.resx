@@ -141,4 +141,20 @@
     <value>Контакт ☎️</value>
     <comment/>
   </data>
+  <data name="btn.locations.show" xml:space="preserve">
+    <value>Мои адреса 👁</value>
+    <comment/>
+  </data>
+  <data name="btn.locations.add" xml:space="preserve">
+    <value>Добавить адрес ➕</value>
+    <comment/>
+  </data>
+  <data name="btn.locations.request" xml:space="preserve">
+    <value>Поделитесь местоположением 📍</value>
+    <comment/>
+  </data>
+  <data name="btn.locations.delete" xml:space="preserve">
+    <value>Удалить ❌</value>
+    <comment/>
+  </data>
 </root>

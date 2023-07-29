@@ -141,4 +141,20 @@
     <value>Telefon raqam ☎️</value>
     <comment/>
   </data>
+  <data name="btn.locations.add" xml:space="preserve">
+    <value>Manzil qo'shish➕</value>
+    <comment/>
+  </data>
+  <data name="btn.locations.show" xml:space="preserve">
+    <value>Manzillarni ko'rish 👁</value>
+    <comment/>
+  </data>
+  <data name="btn.locations.request" xml:space="preserve">
+    <value>Manzilni ulashish 📍</value>
+    <comment/>
+  </data>
+  <data name="btn.locations.delete" xml:space="preserve">
+    <value>O'chirish ❌</value>
+    <comment/>
+  </data>
 </root>

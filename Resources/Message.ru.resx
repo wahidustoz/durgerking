@@ -122,7 +122,11 @@
     <comment/>
   </data>
   <data name="msg.mainmenu" xml:space="preserve">
-    <value>Main menu</value>
+    <value>Главное меню</value>
     <comment>needs to be changed</comment>
+  </data>
+  <data name="msg.location.request" xml:space="preserve">
+    <value>Нажмите на кнопку ниже 👇</value>
+    <comment/>
   </data>
 </root>
