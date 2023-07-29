@@ -118,15 +118,15 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="food-ctg" xml:space="preserve">
-    <value>Ovqat 🍲</value>
+    <value>Ovqat 🍜</value>
     <comment/>
   </data>
   <data name="snak-ctg" xml:space="preserve">
-    <value>Snack 🍮</value>
+    <value>Gazak 🍖</value>
     <comment/>
   </data>
   <data name="drink-ctg" xml:space="preserve">
-    <value>Ichimlik 🍸</value>
+    <value>Ichimlik 🍹</value>
     <comment/>
   </data>
   <data name="salad-ctg" xml:space="preserve">
@@ -134,7 +134,7 @@
     <comment/>
   </data>
   <data name="set-ctg" xml:space="preserve">
-    <value>Set 🍱</value>
+    <value>Set 🍔🍹</value>
     <comment/>
   </data>
 </root>
