@@ -1,3 +1,7 @@
+using System.Collections.Generic;
+using System.Data.Common;
+using System.Threading;
+using System.Net.Mime;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -29,8 +33,31 @@ public partial class UpdateHandler
             await UpsertLocationAsync(botClient, message, cancellationToken);
             await SendShowAddButtonsAsync(botClient, message, cancellationToken);
         }
+        else if (message.Text == "Menu 🍔")
+            await SendCategoryButtonAsync(botClient, message, cancellationToken);
     }
+    private async Task SendCategoryButtonAsync(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
+    {
+        var categories = await dbContext.Categories
+            .ToArrayAsync();
 
+        List<List<InlineKeyboardButton>> buttons = new();
+        int count = 0;
+        foreach(var Item in categories)
+        {
+            if(count++ % 3 ==0)
+            {
+                buttons.Add(new());
+            }
+            buttons[buttons.Count - 1].Add(InlineKeyboardButton.WithCallbackData(Item.Name, Item.Id.ToString()));
+        } 
+         var inlineKeyboard = new InlineKeyboardMarkup(buttons); 
+         await botClient.SendTextMessageAsync(
+            text: "Menudagi barcha taomlar",
+            chatId: message.Chat.Id,
+            replyMarkup: inlineKeyboard,
+            cancellationToken: cancellationToken);   
+    }
     private async Task UpsertLocationAsync(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
     {
         var user = await dbContext.Users
