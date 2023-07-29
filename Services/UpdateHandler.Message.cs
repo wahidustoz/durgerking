@@ -177,7 +177,6 @@ public partial class UpdateHandler
                 InlineKeyboardButton.WithCallbackData(
                      text: $"{GetCheckmarkOrEmpty(user.Language, "ru")}Русский🇷🇺",
                      callbackData : "language.ru")
-          
             }
         });
         
