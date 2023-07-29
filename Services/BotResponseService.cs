@@ -55,11 +55,21 @@ public class BotResponseService : IBotResponseService
             { Button.LanguagesEn, $"{GetCheckmarkOrEmpty(user.Language, "en")}English🇬🇧" },
             { Button.LanguagesRu, $"{GetCheckmarkOrEmpty(user.Language, "ru")}Русский🇷🇺" }
         }.Select(k => InlineKeyboardButton.WithCallbackData(k.Value, k.Key));
+
+        var settingsButton = InlineKeyboardButton.WithCallbackData(
+            text: $"🔙 {localization.GetValue(Button.Settings)}",
+            callbackData: Button.Settings);
+
+        var keyboardMatrix = new[]
+        {
+            languagesKeyboard,
+            new[] { settingsButton },
+        };
         
         var message = await botClient.SendTextMessageAsync(
             text: $"_{localization.GetValue(Button.LanguageSettings)}_",
             chatId: chatId,
-            replyMarkup: new InlineKeyboardMarkup(new [] { languagesKeyboard }),
+            replyMarkup: new InlineKeyboardMarkup(keyboardMatrix),
             parseMode: ParseMode.Markdown,
             cancellationToken: cancellationToken);
         
@@ -119,7 +129,11 @@ public class BotResponseService : IBotResponseService
         if(user.Locations.Count < 3)
             buttons.Add(Button.AddLocation);
 
-        var keyboardMatrix = new[] { buttons.ToArray() };
+        var keyboardMatrix = new[]
+        { 
+            buttons.ToArray(),
+            new[] { Button.Settings }
+        };
 
         var message = await botClient.SendTextMessageAsync(
             text: $"_{localization.GetValue(Button.LocationSettings)}_",
@@ -173,13 +187,25 @@ public class BotResponseService : IBotResponseService
         return (chatId, messageIds);
     }
 
+    public async ValueTask<(long ChatId, long MessageId)> SendLocationExceededErrorAsync(long chatId, CancellationToken cancellationToken = default)
+    {
+        var message = await botClient.SendTextMessageAsync(
+            chatId: chatId,
+            text: localization.GetValue(Message.LocationMaxExceeded),
+            parseMode: ParseMode.Html,
+            replyMarkup: new ReplyKeyboardRemove(),
+            cancellationToken: cancellationToken);
+
+        return (chatId, message.MessageId);
+    }
+
     private InlineKeyboardMarkup GetInlineKeyboard(string[][] matrix)
     {
         var buttonMatrix = new InlineKeyboardButton[matrix.GetLength(0)][];
         for(int i = 0; i < matrix.GetLength(0); i++)
             buttonMatrix[i] = matrix[i]
                 .Select(x => InlineKeyboardButton.WithCallbackData(localization.GetValue(x), x)).ToArray();
-
+        
         return new InlineKeyboardMarkup(buttonMatrix);
     }
 

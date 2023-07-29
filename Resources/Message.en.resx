@@ -129,4 +129,8 @@
     <value>Click the button below 👇</value>
     <comment/>
   </data>
+  <data name="msg.location.max.exceeded" xml:space="preserve">
+    <value>&lt;strong&gt;⚠️Error occured&lt;/strong&gt; &amp;#10;Exceeded maximum number of locations. Delete a saved address and try again.</value>
+    <comment/>
+  </data>
 </root>

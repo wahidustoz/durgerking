@@ -1,3 +1,4 @@
+using DurgerKing.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -25,6 +26,16 @@ public partial class UpdateHandler
         else if(message.Text == "/locations")
             await responseService.SendLocationKeyboardAsync(message.Chat.Id, message.From.Id, cancellationToken);
         else if(message.Type is MessageType.Location && message.Location is not null)
+            await HandleLocationAsync(message, cancellationToken);
+        else if(message.Text == "Contact ☎️")
+            await CheckContactAsync(botClient, message, cancellationToken);
+        else if(message.Contact is not null)
+            await UpsertContactAsync(botClient, message, cancellationToken);
+    }
+
+    private async Task HandleLocationAsync(Message message, CancellationToken cancellationToken)
+    {
+        try
         {
             await userService.AddLocationAsync(
                 userId: message.From.Id,
@@ -34,10 +45,10 @@ public partial class UpdateHandler
 
             await responseService.SendLocationsAsync(message.Chat.Id, message.From.Id, cancellationToken);
         }
-        else if(message.Text == "Contact ☎️")
-            await CheckContactAsync(botClient, message, cancellationToken);
-        else if(message.Contact is not null)
-            await UpsertContactAsync(botClient, message, cancellationToken);
+        catch(MaxLocationsExceededException ex)
+        {
+            await responseService.SendLocationExceededErrorAsync(message.Chat.Id, cancellationToken);
+        }
     }
 
     private async Task UpsertContactAsync(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)

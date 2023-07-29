@@ -129,4 +129,8 @@
     <value>Quyidagi tugmani bosing 👇</value>
     <comment/>
   </data>
+  <data name="msg.location.max.exceeded" xml:space="preserve">
+    <value>&lt;strong&gt;⚠️Xatolik yuz berdi&lt;/strong&gt; &amp;#10;Maksimum manzillar sonidan oshib ketdi. Qaysidir saqlangan manzilni o'chirib, qayta urinib ko'ring.</value>
+    <comment/>
+  </data>
 </root>
