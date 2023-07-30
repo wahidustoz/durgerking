@@ -10,4 +10,5 @@ public class User
     public DateTime CreatedAt { get; set; }
     public DateTime ModifiedAt { get; set; }
     public virtual Contact Contact { get; set; }
+    public virtual List<Location> Locations { get; set; } = new List<Location>();
 }

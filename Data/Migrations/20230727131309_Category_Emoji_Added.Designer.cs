@@ -3,6 +3,7 @@ using System;
 using DurgerKing.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace durgerking.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230727131309_Category_Emoji_Added")]
+    partial class Category_Emoji_Added
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -87,34 +90,6 @@ namespace durgerking.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Contacts");
-                });
-
-            modelBuilder.Entity("DurgerKing.Entity.Location", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Address")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<decimal>("Latitude")
-                        .HasColumnType("numeric");
-
-                    b.Property<decimal>("Longitute")
-                        .HasColumnType("numeric");
-
-                    b.Property<long>("UserId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Locations");
                 });
 
             modelBuilder.Entity("DurgerKing.Entity.Product", b =>
@@ -255,17 +230,6 @@ namespace durgerking.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("DurgerKing.Entity.Location", b =>
-                {
-                    b.HasOne("DurgerKing.Entity.User", "User")
-                        .WithMany("Locations")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("DurgerKing.Entity.Product", b =>
                 {
                     b.HasOne("DurgerKing.Entity.Category", "Category")
@@ -311,8 +275,6 @@ namespace durgerking.Data.Migrations
             modelBuilder.Entity("DurgerKing.Entity.User", b =>
                 {
                     b.Navigation("Contact");
-
-                    b.Navigation("Locations");
                 });
 #pragma warning restore 612, 618
         }

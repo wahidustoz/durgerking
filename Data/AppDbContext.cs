@@ -10,6 +10,7 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<Product> Products { get; set; }
     public DbSet<ProductMedium> ProductMedia { get; set; }
     public DbSet<Contact> Contacts { get; set; }
+    public DbSet<Location> Locations { get; set; }
 
     public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options) { }
@@ -54,11 +55,11 @@ public class AppDbContext : DbContext, IAppDbContext
 
         modelBuilder.Entity<Category>()
             .HasData(
-                new { Id = 1, Name = "Food" },
-                new { Id = 2, Name = "Snack" },
-                new { Id = 3, Name = "Drink" },
-                new { Id = 4, Name = "Salad" },
-                new { Id = 5, Name = "Set" });
+                new { Id = 1, Name = "Ovqat 🍜" },
+                new { Id = 2, Name = "Gazak 🍖" },
+                new { Id = 3, Name = "Ichimlik 🍹" },
+                new { Id = 4, Name = "Salat 🥗" },
+                new { Id = 5, Name = "Set 🍔🍹" });
 
         modelBuilder.Entity<Product>()
             .HasKey(c => c.Id);
@@ -95,12 +96,22 @@ public class AppDbContext : DbContext, IAppDbContext
 
         modelBuilder.Entity<Contact>()
             .HasKey(u => u.Id);
-            
+
         modelBuilder.Entity<User>()
             .HasOne(u => u.Contact)
             .WithOne(c => c.User)
             .HasForeignKey<Contact>(c => c.Id)
             .HasPrincipalKey<User>(u => u.Id);
+        
+        modelBuilder.Entity<Location>()
+            .HasKey(c => c.Id);
+        
+        modelBuilder.Entity<User>()
+            .HasMany(p => p.Locations)
+            .WithOne(m => m.User)
+            .HasForeignKey(m => m.UserId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
 
         base.OnModelCreating(modelBuilder);
     }

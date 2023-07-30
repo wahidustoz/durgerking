@@ -117,8 +117,28 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="greeting-msg" xml:space="preserve">
+  <data name="msg.greeting" xml:space="preserve">
     <value>Assalomu aleykum {0}!. Men DurgerKing yetkazib berish xizmati botiman</value>
+    <comment/>
+  </data>
+  <data name="msg.mainmenu" xml:space="preserve">
+    <value>Bosh menyu</value>
+    <comment/>
+  </data>
+  <data name="msg.location.request" xml:space="preserve">
+    <value>Quyidagi tugmani bosing 👇</value>
+    <comment/>
+  </data>
+  <data name="msg.location.max.exceeded" xml:space="preserve">
+    <value>&lt;strong&gt;⚠️Xatolik yuz berdi&lt;/strong&gt; &amp;#10;Maksimum manzillar sonidan oshib ketdi. Qaysidir saqlangan manzilni o'chirib, qayta urinib ko'ring.</value>
+    <comment/>
+  </data>
+  <data name="msg.contact.display" xml:space="preserve">
+    <value>&lt;strong&gt;👤{0} {1}&lt;/strong&gt; &amp;#10;&lt;strong&gt;📞 {2}&lt;/strong&gt;</value>
+    <comment/>
+  </data>
+  <data name="msg.contact.request" xml:space="preserve">
+    <value>&lt;strong&gt;Quyidagi tugmani bosib kontaktni ulashing 👇&lt;/strong&gt;</value>
     <comment/>
   </data>
 </root>

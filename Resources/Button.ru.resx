@@ -117,28 +117,52 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="settings-msg" xml:space="preserve">
-    <value>Settings ⚙️</value>
+  <data name="btn.settings" xml:space="preserve">
+    <value>Настройки ⚙️</value>
     <comment/>
   </data>
-  <data name="menu-msg" xml:space="preserve">
-    <value>Menu 🍔</value>
+  <data name="btn.menu" xml:space="preserve">
+    <value>Меню 🍔</value>
     <comment/>
   </data>
-  <data name="orders-msg" xml:space="preserve">
-    <value>Orders 📝</value>
+  <data name="btn.orders" xml:space="preserve">
+    <value>Заказы 📝</value>
     <comment/>
   </data>
-  <data name="language-msg" xml:space="preserve">
-    <value>Language 🎏</value>
+  <data name="btn.settings.language" xml:space="preserve">
+    <value>Язык 🎏</value>
     <comment/>
   </data>
-  <data name="locations-msg" xml:space="preserve">
-    <value>Locations 📌</value>
+  <data name="btn.settings.locations" xml:space="preserve">
+    <value>Местоположения 📌</value>
     <comment/>
   </data>
-  <data name="contact-msg" xml:space="preserve">
-    <value>Contact ☎️</value>
+  <data name="btn.settings.contact" xml:space="preserve">
+    <value>Контакт ☎️</value>
+    <comment/>
+  </data>
+  <data name="btn.locations.show" xml:space="preserve">
+    <value>Мои адреса 👁</value>
+    <comment/>
+  </data>
+  <data name="btn.locations.add" xml:space="preserve">
+    <value>Добавить адрес ➕</value>
+    <comment/>
+  </data>
+  <data name="btn.locations.request" xml:space="preserve">
+    <value>Поделитесь местоположением 📍</value>
+    <comment/>
+  </data>
+  <data name="btn.locations.delete" xml:space="preserve">
+    <value>Удалить ❌</value>
+    <comment/>
+  </data>
+  <data name="btn.contact.update" xml:space="preserve">
+    <value>🔄обновить</value>
+    <comment/>
+  </data>
+  <data name="btn.contact.request" xml:space="preserve">
+    <value>Поделиться контактом</value>
     <comment/>
   </data>
 </root>
