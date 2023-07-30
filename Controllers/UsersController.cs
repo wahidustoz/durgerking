@@ -43,6 +43,7 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> GetUser([FromRoute] long id)
     {
         var user = await dbContext.Users
+            .Include(u => u.Locations.Where(u => u.IsActive))
             .FirstOrDefaultAsync(u => u.Id == id);
 
         if(user is null)
