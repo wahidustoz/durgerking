@@ -10,12 +10,14 @@ using Telegram.Bot;
 using Telegram.Bot.Polling;
 using DurgerKing;
 using Durgerking.Dtos;
+using Durgerking.Services;
 using DurgerKing.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers()
-    .AddMvcOptions(o => o.Filters.Add<AsyncFluentAutoValidation>(AsyncFluentAutoValidation.OrderLowerThanModelStateInvalidFilter))
+    .AddMvcOptions(options => 
+        options.Filters.Add<AsyncFluentAutoValidation>(AsyncFluentAutoValidation.OrderLowerThanModelStateInvalidFilter))
     .AddJsonOptions(options =>
         options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull);
 
@@ -23,6 +25,9 @@ builder.Services.AddLocalization();
 builder.Services.AddTransient<IValidator<CreateProductDto>, CreateProductValidator>();
 builder.Services.AddTransient<IValidator<UpdateProductDto>, UpdateProductValidator>();
 builder.Services.AddTransient<IValidator<CreateSetDto>, CreateSetValidator>();
+builder.Services.AddTransient<IBotResponseService, BotResponseService>();
+builder.Services.AddTransient<IUserService, UserService>();
+builder.Services.AddTransient<ILocalizationHandler, LocalizationHandler>();
 builder.Services.AddTransient<IUpdateHandler, UpdateHandler>();
 builder.Services.AddHostedService<BotStartingBackgroundService>();
 builder.Services.AddSwaggerGen();
@@ -31,6 +36,9 @@ builder.Services.AddSingleton<ITelegramBotClient, TelegramBotClient>(
 
 builder.Services.AddDbContext<IAppDbContext, AppDbContext>(
     options => options.UseNpgsql(builder.Configuration.GetConnectionString("PostgresConnection")));
+
+builder.Services.AddHttpClient<IAddressService, AddressService>(
+    configureClient: c => c.BaseAddress = new Uri(builder.Configuration.GetValue("Geocode:BaseUrl", string.Empty)));
 
 var app = builder.Build();
 
