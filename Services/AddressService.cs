@@ -3,20 +3,20 @@ using DurgerKing.Models;
 
 namespace DurgerKing.Services;
 
-public class AddressService
+public class AddressService : IAddressService
 {
-    private readonly HttpClient addressClient;
+    private readonly HttpClient client;
 
-    public AddressService(IHttpClientFactory httpClientFactory)
+    public AddressService(HttpClient client)
+        => this.client = client;
+
+    public async ValueTask<string> GetAddressTextAsync(decimal longitute, decimal latitude, CancellationToken cancellationToken)
     {
-        this.addressClient = httpClientFactory.CreateClient("GeoCode");
-    }
+        var route = "/reverse"
+        + $"?lat={latitude.ToString(CultureInfo.InvariantCulture)}"
+        + $"&lon={longitute.ToString(CultureInfo.InvariantCulture)}";
 
-    public async Task<string> GetAddressTextAsync(double longitute, double latitude, CancellationToken cancellationToken)
-    {
-        var route = $"/reverse?lat={latitude.ToString(CultureInfo.InvariantCulture)}&lon={longitute.ToString(CultureInfo.InvariantCulture)}";
-        var address = await this.addressClient.GetFromJsonAsync<AddressResponse>(route);
-
-        return $"{address.Address.County}, {address.Address.Road}, {address.Address.HouseNumber}";
+        var address = await client.GetFromJsonAsync<AddressResponse>(route, cancellationToken);
+        return address.DisplayName;
     }
 }
