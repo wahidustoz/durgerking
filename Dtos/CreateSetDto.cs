@@ -2,5 +2,5 @@ namespace Durgerking.Dtos;
 
 public class CreateSetDto
 {
-    public IEnumerable<Guid> itemIds { get; set; }
+    public IEnumerable<Guid> ItemIds { get; set; }
 }
