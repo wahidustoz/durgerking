@@ -157,4 +157,12 @@
     <value>O'chirish ❌</value>
     <comment/>
   </data>
+  <data name="btn.contact.update" xml:space="preserve">
+    <value>🔄 Yangilash</value>
+    <comment/>
+  </data>
+  <data name="btn.contact.request" xml:space="preserve">
+    <value>Kontakt ulashish</value>
+    <comment/>
+  </data>
 </root>

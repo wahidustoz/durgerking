@@ -133,4 +133,12 @@
     <value>&lt;strong&gt;⚠️Error occured&lt;/strong&gt; &amp;#10;Exceeded maximum number of locations. Delete a saved address and try again.</value>
     <comment/>
   </data>
+  <data name="msg.contact.display" xml:space="preserve">
+    <value>&lt;strong&gt;👤{0} {1}&lt;/strong&gt; &amp;#10;&lt;strong&gt;📞 {2}&lt;/strong&gt;</value>
+    <comment/>
+  </data>
+  <data name="msg.contact.request" xml:space="preserve">
+    <value>&lt;strong&gt;Click below button to share contact 👇&lt;/strong&gt;</value>
+    <comment/>
+  </data>
 </root>

@@ -15,4 +15,6 @@ public class Button
     public static string AddLocation => "btn.locations.add";
     public static string LocationRequest => "btn.locations.request";
     public static string DeleteAddress => "btn.locations.delete";
+    public static string ContactUpdate => "btn.contact.update";
+    public static string ContactRequest => "btn.contact.request";
 }

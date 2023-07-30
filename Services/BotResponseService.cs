@@ -199,6 +199,56 @@ public class BotResponseService : IBotResponseService
         return (chatId, message.MessageId);
     }
 
+    public async ValueTask<(long ChatId, long MessageId)> SendContactAsync(
+        long chatId, 
+        long userId, 
+        CancellationToken cancellationToken = default)
+    {
+        var user = await userService.GetUserWithContactOrDefaultAsync(userId, cancellationToken);
+        if(user.Contact is null)
+            return await SendContactRequestAsync(chatId, cancellationToken);
+        
+        var message = await botClient.SendTextMessageAsync(
+            chatId: chatId,
+            text: localization.GetValue(
+                key: Message.ContactDisplay, 
+                arguments: new [] { user.Contact.FirstName, user.Contact.LastName, user.Contact.PhoneNumber }),
+            replyMarkup: GetInlineKeyboard(new[] { new[] { Button.ContactUpdate }}),
+            parseMode: ParseMode.Html,
+            cancellationToken: cancellationToken);
+        
+        var _ = RemoveKeyboardAsync(chatId, cancellationToken);
+        
+        return (chatId, message.MessageId);
+    }
+
+    public async ValueTask<(long ChatId, long MessageId)> SendContactRequestAsync(
+        long chatId, 
+        CancellationToken cancellationToken = default)
+    {
+        var button =  KeyboardButton.WithRequestContact(localization.GetValue(Button.ContactRequest));
+        var keyboardLayout = new[] { new[] { button } };
+
+        var message = await botClient.SendTextMessageAsync(
+            chatId: chatId,
+            text: localization.GetValue(Message.ContactRequest),
+            replyMarkup: new ReplyKeyboardMarkup(keyboardLayout) { ResizeKeyboard = true },
+            parseMode: ParseMode.Html,
+            cancellationToken: cancellationToken);
+
+        return (chatId, message.MessageId);
+    }
+
+    private async ValueTask RemoveKeyboardAsync(long chatId, CancellationToken cancellationToken = default)
+    {
+        var message = await botClient.SendTextMessageAsync(
+            text: " .",
+            chatId: chatId,
+            replyMarkup: new ReplyKeyboardRemove(),
+            cancellationToken: cancellationToken);
+        await botClient.DeleteMessageAsync(chatId, message.MessageId, cancellationToken: cancellationToken);
+    }
+
     private InlineKeyboardMarkup GetInlineKeyboard(string[][] matrix)
     {
         var buttonMatrix = new InlineKeyboardButton[matrix.GetLength(0)][];

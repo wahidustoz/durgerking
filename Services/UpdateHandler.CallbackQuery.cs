@@ -1,9 +1,6 @@
-using System.Globalization;
 using DurgerKing.Resources;
-using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.ReplyMarkups;
 
 namespace DurgerKing.Services;
 
@@ -27,8 +24,10 @@ public partial class UpdateHandler
                 => responseService.SendLocationsAsync(query.Message.Chat.Id, query.From.Id, cancellationToken).AsTask(),
             _ when query.Data.Contains(Button.DeleteAddress)
                 => HandleDeleteAddressAsync(query.From.Id, query.Data, cancellationToken),
-            _ when query.Data.Contains("update")
-                => SendContactRequestAsync(client, query.Message.Chat.Id, cancellationToken),
+            _ when query.Data == Button.ContactSettings
+                => responseService.SendContactAsync(query.Message.Chat.Id, query.From.Id, cancellationToken).AsTask(),
+            _ when query.Data == Button.ContactUpdate
+                => responseService.SendContactRequestAsync(query.Message.Chat.Id, cancellationToken).AsTask(),
             _ => throw new NotImplementedException($"Call back query {query.Data} not supported!")
         };
 
@@ -41,22 +40,6 @@ public partial class UpdateHandler
         var locationIdString = data.Split(".", StringSplitOptions.RemoveEmptyEntries).Last();
         var locationId = Guid.Parse(locationIdString);
         await userService.RemoveLocationAsync(userId, locationId, cancellationToken);
-    }
-
-    private static async Task SendContactRequestAsync(ITelegramBotClient client, long chatId, CancellationToken cancellationToken)
-    {
-        var inlineKeyboard = new InlineKeyboardMarkup(new[]
-        {
-            new[]
-            {
-                InlineKeyboardButton.WithCallbackData("Request Contact ☎️", "contact.request"),
-            }
-        });
-        await client.SendTextMessageAsync(
-            chatId: chatId,
-            text: "Send your contact",
-            replyMarkup: inlineKeyboard,
-            cancellationToken: cancellationToken);
     }
 
     private async Task HandleLanguageCallbackAsync(CallbackQuery query, CancellationToken cancellationToken)

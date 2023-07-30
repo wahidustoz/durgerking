@@ -50,10 +50,15 @@ public class UserService : IUserService
     public Task<User> GetUserOrDefaultAsync(long userId, CancellationToken cancellationToken = default)
         => dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
 
+    public Task<User> GetUserWithContactOrDefaultAsync(long userId, CancellationToken cancellationToken = default)
+        => dbContext.Users
+            .Include(u => u.Contact)
+            .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+
     public Task<User> GetUserWithLocationsOrDefaultAsync(long userId, CancellationToken cancellationToken = default)
         => dbContext.Users
-        .Include(u => u.Locations.Where(l => l.IsActive))
-        .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+            .Include(u => u.Locations.Where(l => l.IsActive))
+            .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
 
     public async Task<User> RemoveLocationAsync(long userId, Guid locationId, CancellationToken cancellationToken = default)
     {
@@ -72,6 +77,32 @@ public class UserService : IUserService
         user.Language = language;
         await dbContext.SaveChangesAsync(cancellationToken);
 
+        return user;
+    }
+
+    public async Task<User> UpsertContactAsync(long userId, string phone, string firstname, string lastname, string vcard, CancellationToken cancellationToken = default)
+    {
+        var user = await GetUserWithContactOrDefaultAsync(userId, cancellationToken);
+        if(user.Contact is null)
+        {
+            user.Contact = new Contact
+            {
+                Id = userId,
+                PhoneNumber = phone,
+                FirstName = firstname,
+                LastName = lastname,
+                Vcard = vcard
+            };
+        }
+        else
+        {
+            user.Contact.PhoneNumber = phone;
+            user.Contact.FirstName = firstname;
+            user.Contact.LastName = lastname;
+            user.Contact.Vcard = vcard;
+        }
+
+        await dbContext.SaveChangesAsync(cancellationToken);
         return user;
     }
 

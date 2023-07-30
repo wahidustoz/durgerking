@@ -157,4 +157,12 @@
     <value>Удалить ❌</value>
     <comment/>
   </data>
+  <data name="btn.contact.update" xml:space="preserve">
+    <value>🔄обновить</value>
+    <comment/>
+  </data>
+  <data name="btn.contact.request" xml:space="preserve">
+    <value>Поделиться контактом</value>
+    <comment/>
+  </data>
 </root>

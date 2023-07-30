@@ -30,4 +30,11 @@ public interface IBotResponseService
     ValueTask<(long ChatId, long MessageId)> SendLocationExceededErrorAsync(
         long chatId, 
         CancellationToken cancellationToken = default);
+    ValueTask<(long ChatId, long MessageId)> SendContactAsync(
+        long chatId, 
+        long userId, 
+        CancellationToken cancellationToken = default);
+    ValueTask<(long ChatId, long MessageId)> SendContactRequestAsync(
+        long chatId, 
+        CancellationToken cancellationToken = default);
 }

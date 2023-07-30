@@ -27,10 +27,23 @@ public partial class UpdateHandler
             await responseService.SendLocationKeyboardAsync(message.Chat.Id, message.From.Id, cancellationToken);
         else if(message.Type is MessageType.Location && message.Location is not null)
             await HandleLocationAsync(message, cancellationToken);
-        else if(message.Text == "Contact ☎️")
-            await CheckContactAsync(botClient, message, cancellationToken);
+        else if(message.Text == "/contact")
+            await responseService.SendContactAsync(message.Chat.Id, message.From.Id, cancellationToken);
         else if(message.Contact is not null)
-            await UpsertContactAsync(botClient, message, cancellationToken);
+            await HandleContactAsync(message, cancellationToken);
+    }
+
+    private async Task HandleContactAsync(Message message, CancellationToken cancellationToken)
+    {
+        var user = await userService.UpsertContactAsync(
+            userId: message.From.Id,
+            phone: message.Contact.PhoneNumber,
+            firstname: message.Contact.FirstName,
+            lastname: message.Contact.LastName,
+            vcard: message.Contact.Vcard,
+            cancellationToken: cancellationToken);
+
+        await responseService.SendContactAsync(message.Chat.Id, user.Id, cancellationToken);
     }
 
     private async Task HandleLocationAsync(Message message, CancellationToken cancellationToken)
@@ -47,84 +60,8 @@ public partial class UpdateHandler
         }
         catch(MaxLocationsExceededException ex)
         {
+            logger.LogInformation(ex, "User {userId} exceeded max locations.", message.From.Id);
             await responseService.SendLocationExceededErrorAsync(message.Chat.Id, cancellationToken);
         }
-    }
-
-    private async Task UpsertContactAsync(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
-    {
-        var user = await dbContext.Users
-            .Where(u => u.Id == message.From.Id)
-            .Include(u => u.Contact)
-            .FirstOrDefaultAsync(cancellationToken);
-        
-        user.Contact = new DurgerKing.Entity.Contact
-        {
-            PhoneNumber = message.Contact.PhoneNumber,
-            FirstName = message.From.FirstName,
-            LastName = message.From.LastName,
-            Vcard = message.Contact.Vcard,
-        };
-        await dbContext.SaveChangesAsync(cancellationToken);
-        await SendContactInfoAsync(botClient, message, user.Contact, cancellationToken);
-    }
-
-    private async Task CheckContactAsync(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
-    {
-        var user = await dbContext.Users
-            .Where(u => u.Id == message.From.Id)
-            .Include(u => u.Contact)
-            .FirstOrDefaultAsync(cancellationToken);
-
-        var contact = user.Contact;
-
-        if(contact == null)
-            await SendContactRequestAsync(botClient, message.Chat.Id, cancellationToken);
-        else
-            await SendContactInfoAsync(botClient, message, contact, cancellationToken);
-    }
-
-    private static async Task SendContactInfoAsync(ITelegramBotClient botClient, Message message, Entity.Contact contact, CancellationToken cancellationToken)
-    {
-        InlineKeyboardMarkup inlineKeyboard = new(new[]
-        {
-            new[]
-            {
-                InlineKeyboardButton.WithCallbackData(text: "Update", callbackData: "contact-update"),
-            },
-        });
-        var contactText = $"{contact.FirstName} {contact.LastName},PhoneNumber: {contact.PhoneNumber}";
-        await botClient.SendTextMessageAsync(
-            chatId: message.Chat.Id,
-            text: contactText,
-            replyMarkup: inlineKeyboard,
-            cancellationToken: cancellationToken);
-    }
-
-    private async Task SendShowAddButtonsAsync(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
-    {
-        var user = await dbContext.Users
-            .Where(u => u.Id == message.From.Id)
-            .Include(u => u.Locations)
-            .FirstOrDefaultAsync(cancellationToken);
-        
-        InlineKeyboardMarkup keyboardLayout = user.Locations.Count() < 3 ? 
-            new InlineKeyboardButton[]
-            {
-                InlineKeyboardButton.WithCallbackData(text: "Show locations 👁", callbackData: "showLocations"),
-                InlineKeyboardButton.WithCallbackData(text: "Add location ➕", callbackData: "addLocation")
-            }
-            :
-            new InlineKeyboardButton[]
-            {
-                InlineKeyboardButton.WithCallbackData(text: "Show locations 👁", callbackData: "showLocations")
-            };
-
-        await botClient.SendTextMessageAsync(
-            chatId: message.Chat.Id,
-            text: "Select show or add location",
-            replyMarkup: keyboardLayout,
-            cancellationToken: cancellationToken
-        );
     }
 }

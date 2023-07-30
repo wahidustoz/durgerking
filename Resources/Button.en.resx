@@ -157,4 +157,12 @@
     <value>Delete ❌</value>
     <comment/>
   </data>
+  <data name="btn.contact.update" xml:space="preserve">
+    <value>🔄 Update</value>
+    <comment/>
+  </data>
+  <data name="btn.contact.request" xml:space="preserve">
+    <value>Share contact</value>
+    <comment/>
+  </data>
 </root>
