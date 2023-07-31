@@ -1,3 +1,4 @@
+using DurgerKing.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,7 +7,11 @@ namespace DurgerKing.Controllers;
 public partial class ProductsController : ControllerBase
 {
     [HttpPost("{id}/set")]
-    public async Task<IActionResult> CreateSet([FromRoute] Guid id,[FromBody] IEnumerable<Guid> itemIds, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> CreateSet(
+        [FromRoute] Guid id,
+        [FromBody] IEnumerable<Guid> itemIds,
+        [FromServices] IAppDbContext dbContext,
+        CancellationToken cancellationToken = default)
     {
         var product = await dbContext.Products
             .Where(a => a.Id == id && a.IsActive)

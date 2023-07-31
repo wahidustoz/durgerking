@@ -10,15 +10,9 @@ namespace DurgerKing.Controllers;
 [Route("api/[controller]")]
 public class UsersController : ControllerBase
 {
-    private readonly IAppDbContext dbContext;
-
-    public UsersController(IAppDbContext dbContext)
-    {
-        this.dbContext = dbContext;
-    }
-
     [HttpGet]
     public async Task<IActionResult> GetUsers(
+        [FromServices] IAppDbContext dbContext,
         [FromQuery] string search, 
         [FromQuery] int offset = 0, 
         [FromQuery] int limit = 25)
@@ -40,7 +34,9 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetUser([FromRoute] long id)
+    public async Task<IActionResult> GetUser(
+        [FromRoute] long id,
+        [FromServices] IAppDbContext dbContext)
     {
         var user = await dbContext.Users
             .FirstOrDefaultAsync(u => u.Id == id);

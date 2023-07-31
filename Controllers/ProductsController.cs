@@ -10,16 +10,11 @@ namespace DurgerKing.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 public partial class ProductsController : ControllerBase
-{ 
-    private readonly IAppDbContext dbContext;
-    
-    public ProductsController(IAppDbContext dbContext)
-    {
-        this.dbContext = dbContext;
-    }
-
+{
     [HttpPost]
-    public async Task<IActionResult> CreateProduct([FromBody] CreateProductDto productdto)
+    public async Task<IActionResult> CreateProduct(
+        [FromBody] CreateProductDto productdto,
+        [FromServices] IAppDbContext dbContext)
     {
         var created = dbContext.Products.Add(new Product
         {
@@ -41,6 +36,7 @@ public partial class ProductsController : ControllerBase
 
     [HttpGet]
     public async Task<IActionResult> GetProducts(
+        [FromServices] IAppDbContext dbContext,
         [FromQuery] string search,
         [FromQuery] int offset = 0,
         [FromQuery] int limit = 25)
@@ -66,7 +62,9 @@ public partial class ProductsController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetProduct([FromRoute] Guid id)
+    public async Task<IActionResult> GetProduct(
+        [FromRoute] Guid id,
+        [FromServices] IAppDbContext dbContext)
     {
         var product = await dbContext.Products
             .Where(p => p.Id == id)
@@ -81,7 +79,10 @@ public partial class ProductsController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateProduct([FromRoute] Guid id, UpdateProductDto updateProduct)
+    public async Task<IActionResult> UpdateProduct(
+        [FromRoute] Guid id,
+        [FromServices] IAppDbContext dbContext,
+        UpdateProductDto updateProduct)
     {
         var product = await dbContext.Products
             .FirstOrDefaultAsync(x => x.Id == id);
@@ -102,7 +103,9 @@ public partial class ProductsController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteProduct([FromRoute] Guid id)
+    public async Task<IActionResult> DeleteProduct(
+        [FromRoute] Guid id,
+        [FromServices] IAppDbContext dbContext)
     {
         var product = await dbContext.Products.FirstOrDefaultAsync(u => u.Id == id);
 
