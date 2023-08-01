@@ -1,3 +1,4 @@
+using DurgerKing.Data;
 using DurgerKing.Dtos;
 using DurgerKing.Entity;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +10,7 @@ public partial class ProductsController : ControllerBase
     [HttpPost("{id}/media")]
     public async Task<IActionResult> CreateProductMedia(
         [FromRoute] Guid id,
+        [FromServices] IAppDbContext dbContext,
         CancellationToken cancellationToken)
     {
         var product = await dbContext.Products
@@ -64,6 +66,7 @@ public partial class ProductsController : ControllerBase
     [HttpGet("{id}/media")]
     public async Task<IActionResult> GetProductMedia(
         [FromRoute] Guid id,
+        [FromServices] IAppDbContext dbContext,
         CancellationToken cancellationToken = default)
     {
         var product = await dbContext.Products
@@ -84,6 +87,7 @@ public partial class ProductsController : ControllerBase
     public async Task<IActionResult> DownloadProductMedium(
         [FromRoute] Guid productId,
         [FromRoute] Guid mediumId,
+        [FromServices] IAppDbContext dbContext,
         CancellationToken cancellationToken)
     {
         var product = await dbContext.Products
@@ -107,6 +111,7 @@ public partial class ProductsController : ControllerBase
     public async Task<IActionResult> DeleteMedium(
         [FromRoute] Guid productId,
         [FromRoute] Guid mediumId,
+        [FromServices] IAppDbContext dbContext,
         CancellationToken cancellationToken)
     {
         var product = await dbContext.Products
