@@ -1,6 +1,6 @@
 using Durgerking.Dtos;
-using DurgerKing.Dto;
 using DurgerKing.Data;
+using DurgerKing.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -39,6 +39,7 @@ public class UsersController : ControllerBase
         [FromServices] IAppDbContext dbContext)
     {
         var user = await dbContext.Users
+            .Include(u => u.Locations.Where(u => u.IsActive))
             .FirstOrDefaultAsync(u => u.Id == id);
 
         if(user is null)

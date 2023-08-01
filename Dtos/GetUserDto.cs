@@ -1,6 +1,6 @@
 using DurgerKing.Entity;
 
-namespace DurgerKing.Dto;
+namespace DurgerKing.Dtos;
 
 public class GetUserDto
 {
@@ -13,6 +13,10 @@ public class GetUserDto
         Phone = entity.Phone;
         CreatedAt = entity.CreatedAt;
         ModifiedAt = entity.ModifiedAt;
+
+        Locations = entity.Locations?.Any() is true
+            ? entity.Locations.Select(i => new GetLocationDto(i)) 
+            : null;
     }
     public long Id { get; set; }
     public string Fullname { get; set; }
@@ -21,4 +25,5 @@ public class GetUserDto
     public string Phone { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime ModifiedAt { get; set; }
+    public IEnumerable<GetLocationDto> Locations { get; set; }
 }
