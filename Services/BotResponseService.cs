@@ -3,6 +3,8 @@ using DurgerKing.Resources;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
+using TelegramBotMenu.Extensions;
+using TelegramBotMenu.Models;
 
 namespace DurgerKing.Services;
 
@@ -12,17 +14,20 @@ public class BotResponseService : IBotResponseService
     private readonly IUserService userService;
     private readonly ILocalizationHandler localization;
     private readonly ITelegramBotClient botClient;
+    private readonly IProductService productService ;
 
     public BotResponseService(
         ILogger<BotResponseService> logger,
         IUserService userService,
         ILocalizationHandler localization,
-        ITelegramBotClient botClient)
+        ITelegramBotClient botClient,
+        IProductService productService)
     {
         this.logger = logger;
         this.userService = userService;
         this.localization = localization;
         this.botClient = botClient;
+        this.productService = productService;
     }
 
     public async ValueTask<(long ChatId, long MessageId)> SendGreetingAsync(
@@ -239,6 +244,86 @@ public class BotResponseService : IBotResponseService
         return (chatId, message.MessageId);
     }
 
+    public async ValueTask<(long ChatId, long MessageId)> SendMenuAsync(
+    long chatId,
+    CancellationToken cancellationToken = default)
+    {
+        var keyboardMatrix = new[]
+        {
+            new[] { Button.Food, Button.Salad },
+            new[] { Button.Snack, Button.Drink },
+            new[] { Button.Set },
+        };
+
+        var message = await botClient.SendTextMessageAsync(
+            text: $"_{localization.GetValue(Button.Settings)}_",
+            chatId: chatId,
+            replyMarkup: GetInlineKeyboard(keyboardMatrix),
+            parseMode: ParseMode.Markdown,
+            cancellationToken: cancellationToken);
+
+        return (chatId, message.MessageId);
+    }
+
+    public async ValueTask <(long ChatId, long MessageId)> SendCategoriesAsync(
+        long chatId,
+        CancellationToken cancellationToken = default)
+    {
+        var categoryDb = await productService.GetCategoriesAsync(cancellationToken);
+
+        var categories = categoryDb.Select(p => $"category.{p.Id}");
+
+        var row = (int)Math.Ceiling((double)categories.Count() / 2);
+        var categoryMatrix = Enumerable.Range(0, row)
+            .Select(a => categories.Skip(a * 2).Take(2).ToArray()).ToArray();
+
+        var message = await botClient.SendTextMessageAsync(
+            text: $"_{"Categories"}_",
+            chatId: chatId,
+            replyMarkup: GetInlineKeyboard(categoryMatrix),
+            parseMode: ParseMode.Markdown,
+            cancellationToken: cancellationToken);
+
+        return (chatId, message.MessageId);
+    }
+
+    public async ValueTask<(long ChatId, long MessageId)> SendFoodAsync(
+        long chatId, 
+        CancellationToken cancellationToken = default)
+    {
+        List<MenuButtonModel> buttonModels = new()
+        {
+            new MenuButtonModel("Button1", "Button1Value"),
+            new MenuButtonModel("Button2", "Button2Value"),
+            new MenuButtonModel("Button3", "Button3Value"),
+            new MenuButtonModel("Button4", "Button4Value"),
+            new MenuButtonModel("Button5", "Button5Value"),
+            new MenuButtonModel("Button6", "Button6Value"),
+            new MenuButtonModel("Button7", "Button7Value"),
+            new MenuButtonModel("Button8", "Button8Value"),
+            new MenuButtonModel("Button9", "Button9Value"),
+        };
+
+        const int column = 3;
+        const int row = 1;
+        var replyMenu = botClient.GetPaginationInlineKeyboard(buttonModels, column, row);
+
+        var products = await productService.GetProductsAsync(1, cancellationToken);
+
+        var product = products.FirstOrDefault();
+
+        var message = await botClient.SendTextMessageAsync(
+            text: $"name: {product.Name}\nprice: {product.Price}",
+            chatId: chatId,
+            replyMarkup: replyMenu,
+            parseMode: ParseMode.Markdown,
+            cancellationToken: cancellationToken);
+
+        return (chatId, message.MessageId);
+
+        
+    }
+    
     private async ValueTask RemoveKeyboardAsync(long chatId, CancellationToken cancellationToken = default)
     {
         var message = await botClient.SendTextMessageAsync(
