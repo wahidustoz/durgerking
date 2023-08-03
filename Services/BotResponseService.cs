@@ -3,8 +3,8 @@ using DurgerKing.Resources;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
-using TelegramBotMenu.Extensions;
-using TelegramBotMenu.Models;
+using DurgerKing.Extensions;
+using DurgerKing.Models;
 
 namespace DurgerKing.Services;
 
@@ -288,40 +288,127 @@ public class BotResponseService : IBotResponseService
     }
 
     public async ValueTask<(long ChatId, long MessageId)> SendFoodAsync(
-        long chatId, 
+        long chatId,
+        int messageId,
+        string clickedNavigation, 
         CancellationToken cancellationToken = default)
     {
+        // List<MenuButtonModel> buttonModels = new List<MenuButtonModel>();
+        var products = await productService.GetProductsAsync(1, cancellationToken);
+
+        // foreach (var item in products)
+        // {
+        //     buttonModels.Add(new MenuButtonModel(item.Name, item.Id.ToString()));
+        // }
+        Console.WriteLine("------------------------------------------------------------------");
+        Console.WriteLine(clickedNavigation);
+        Console.WriteLine("------------------------------------------------------------------");
+        
         List<MenuButtonModel> buttonModels = new()
         {
             new MenuButtonModel("Button1", "Button1Value"),
             new MenuButtonModel("Button2", "Button2Value"),
             new MenuButtonModel("Button3", "Button3Value"),
             new MenuButtonModel("Button4", "Button4Value"),
-            new MenuButtonModel("Button5", "Button5Value"),
+            new MenuButtonModel("Button5", "Button5Value"), 
             new MenuButtonModel("Button6", "Button6Value"),
             new MenuButtonModel("Button7", "Button7Value"),
             new MenuButtonModel("Button8", "Button8Value"),
             new MenuButtonModel("Button9", "Button9Value"),
         };
 
-        const int column = 3;
-        const int row = 1;
-        var replyMenu = botClient.GetPaginationInlineKeyboard(buttonModels, column, row);
+        const int column = 2;
+        const int row = 2;
+        if(clickedNavigation.Contains("toPage"))
+        {
+            var replyMenu = botClient.GetPaginationInlineKeyboard(buttonModels, column, row, clickedNavigation);
+            var product = products.FirstOrDefault();
 
+            var message = await botClient.SendTextMessageAsync(
+                text: $"name: {product.Name}\nprice: {product.Price}",
+                chatId: chatId,
+                replyMarkup: replyMenu,
+                parseMode: ParseMode.Markdown,
+                cancellationToken: cancellationToken);
+
+            return (chatId, message.MessageId);
+        }
+        else
+        {
+            var replyMenu = botClient.GetPaginationInlineKeyboard(buttonModels, column, row);
+            var product = products.FirstOrDefault();
+
+            var message = await botClient.SendTextMessageAsync(
+                text: $"name: {product.Name}\nprice: {product.Price}",
+                chatId: chatId,
+                replyMarkup: replyMenu,
+                parseMode: ParseMode.Markdown,
+                cancellationToken: cancellationToken);
+
+            return (chatId, message.MessageId);
+        }
+    }
+
+    public async ValueTask<(long ChatId, long MessageId)> SendSnackAsync(
+        long chatId,
+        int messageId,
+        string clickedNavigation, 
+        CancellationToken cancellationToken = default)
+    {
+        // List<MenuButtonModel> buttonModels = new List<MenuButtonModel>();
         var products = await productService.GetProductsAsync(1, cancellationToken);
 
-        var product = products.FirstOrDefault();
+        // foreach (var item in products)
+        // {
+        //     buttonModels.Add(new MenuButtonModel(item.Name, item.Id.ToString()));
+        // }
+        Console.WriteLine("------------------------------------------------------------------");
+        Console.WriteLine(clickedNavigation);
+        Console.WriteLine("------------------------------------------------------------------");
 
-        var message = await botClient.SendTextMessageAsync(
-            text: $"name: {product.Name}\nprice: {product.Price}",
-            chatId: chatId,
-            replyMarkup: replyMenu,
-            parseMode: ParseMode.Markdown,
-            cancellationToken: cancellationToken);
+        List<MenuButtonModel> buttonModels = new()
+        {
+            new MenuButtonModel("Button11", "Button11Value"),
+            new MenuButtonModel("Button21", "Button21Value"),
+            new MenuButtonModel("Button31", "Button31Value"),
+            new MenuButtonModel("Button41", "Button41Value"),
+            new MenuButtonModel("Button51", "Button51Value"), 
+            new MenuButtonModel("Button61", "Button61Value"),
+            new MenuButtonModel("Button71", "Button71Value"),
+            new MenuButtonModel("Button81", "Button81Value"),
+            new MenuButtonModel("Button91", "Button91Value"),
+        };
 
-        return (chatId, message.MessageId);
+        const int column = 2;
+        const int row = 2;
+        if(clickedNavigation.Contains("toPage"))
+        {
+            var replyMenu = botClient.GetPaginationInlineKeyboard(buttonModels, column, row, clickedNavigation);
+            var product = products.FirstOrDefault();
 
-        
+            var message = await botClient.SendTextMessageAsync(
+                text: $"name: {product.Name}\nprice: {product.Price}",
+                chatId: chatId,
+                replyMarkup: replyMenu,
+                parseMode: ParseMode.Markdown,
+                cancellationToken: cancellationToken);
+
+            return (chatId, message.MessageId);
+        }
+        else
+        {
+            var replyMenu = botClient.GetPaginationInlineKeyboard(buttonModels, column, row);
+            var product = products.FirstOrDefault();
+
+            var message = await botClient.SendTextMessageAsync(
+                text: $"name: {product.Name}\nprice: {product.Price}",
+                chatId: chatId,
+                replyMarkup: replyMenu,
+                parseMode: ParseMode.Markdown,
+                cancellationToken: cancellationToken);
+
+            return (chatId, message.MessageId);
+        }
     }
     
     private async ValueTask RemoveKeyboardAsync(long chatId, CancellationToken cancellationToken = default)
