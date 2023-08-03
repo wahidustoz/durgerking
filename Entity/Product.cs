@@ -1,9 +1,7 @@
 namespace DurgerKing.Entity;
 
-public class Product
+public class Product : IHasTimeStamp
 {
-    internal int categoryId;
-
     public Guid Id { get; set; }
     public string Name { get; set; }
     public string Description { get; set; }
