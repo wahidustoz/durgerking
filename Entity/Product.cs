@@ -1,6 +1,6 @@
 namespace DurgerKing.Entity;
 
-public class Product
+public class Product : IHasTime
 {
     public Guid Id { get; set; }
     public string Name { get; set; }

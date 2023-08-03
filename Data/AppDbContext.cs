@@ -102,10 +102,10 @@ public class AppDbContext : DbContext, IAppDbContext
             .WithOne(c => c.User)
             .HasForeignKey<Contact>(c => c.Id)
             .HasPrincipalKey<User>(u => u.Id);
-        
+
         modelBuilder.Entity<Location>()
             .HasKey(c => c.Id);
-        
+
         modelBuilder.Entity<User>()
             .HasMany(p => p.Locations)
             .WithOne(m => m.User)
@@ -117,5 +117,25 @@ public class AppDbContext : DbContext, IAppDbContext
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        => base.SaveChangesAsync(cancellationToken);
+    {
+        SetDates();
+        return base.SaveChangesAsync(cancellationToken);
+    }
+
+    private void SetDates()
+    {
+        foreach (var entry in ChangeTracker.Entries<IHasTime>())
+        {
+            if (entry.State == EntityState.Added)
+            {
+                entry.Entity.CreatedAt = DateTime.UtcNow;
+                entry.Entity.ModifiedAt = DateTime.UtcNow;
+            }
+
+            if (entry.State == EntityState.Modified)
+            {
+                entry.Entity.ModifiedAt = DateTime.UtcNow;
+            }
+        }
+    }
 }
