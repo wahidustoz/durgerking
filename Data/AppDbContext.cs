@@ -102,10 +102,10 @@ public class AppDbContext : DbContext, IAppDbContext
             .WithOne(c => c.User)
             .HasForeignKey<Contact>(c => c.Id)
             .HasPrincipalKey<User>(u => u.Id);
-        
+
         modelBuilder.Entity<Location>()
             .HasKey(c => c.Id);
-        
+
         modelBuilder.Entity<User>()
             .HasMany(p => p.Locations)
             .WithOne(m => m.User)
@@ -117,5 +117,26 @@ public class AppDbContext : DbContext, IAppDbContext
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        => base.SaveChangesAsync(cancellationToken);
+    {
+        UpdateTimestampsForAuditableEntities();
+
+        return base.SaveChangesAsync(cancellationToken);
+    }
+
+    private void UpdateTimestampsForAuditableEntities()
+    {
+        foreach (var entry in ChangeTracker.Entries())
+        {
+            if (entry.Entity is not IAuditable entity) continue;
+            switch (entry.State)
+            {
+                case EntityState.Added:
+                    entity.CreatedAt = DateTime.UtcNow;
+                    break;
+                case EntityState.Modified:
+                    entity.ModifiedAt = DateTime.UtcNow;
+                    break;
+            }
+        }
+    }
 }

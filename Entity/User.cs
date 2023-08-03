@@ -1,6 +1,6 @@
 namespace DurgerKing.Entity;
 
-public class User
+public class User : IAuditable
 {
     public long Id { get; set; }
     public string Fullname { get; set; }
