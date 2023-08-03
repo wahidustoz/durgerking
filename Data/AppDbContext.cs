@@ -14,10 +14,7 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<Location> Locations { get; set; }
 
     public AppDbContext(DbContextOptions<AppDbContext> options)
-        : base(options)
-    {
-        ChangeTracker.StateChanged += ChangeTracker_OnStateChanged;
-    }
+        : base(options) { }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -126,17 +123,17 @@ public class AppDbContext : DbContext, IAppDbContext
         return base.SaveChangesAsync(cancellationToken);
     }
 
-    private void ChangeTracker_OnStateChanged(object sender, EntityStateChangedEventArgs e)
+     private void ChangeTracker_StateChanged(object sender, EntityStateChangedEventArgs e)
     {
         foreach (var entry in ChangeTracker.Entries<IHasTime>())
         {
-            if (entry.State == EntityState.Added)
+            if (e.Entry.State == EntityState.Added)
             {
                 entry.Entity.CreatedAt = DateTime.UtcNow;
                 entry.Entity.ModifiedAt = DateTime.UtcNow;
             }
 
-            if (entry.State == EntityState.Modified)
+            if (e.Entry.State == EntityState.Modified)
             {
                 entry.Entity.ModifiedAt = DateTime.UtcNow;
             }
