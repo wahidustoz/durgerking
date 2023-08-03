@@ -1,5 +1,6 @@
 using DurgerKing.Entity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace DurgerKing.Data;
 
@@ -13,7 +14,10 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<Location> Locations { get; set; }
 
     public AppDbContext(DbContextOptions<AppDbContext> options)
-        : base(options) { }
+        : base(options)
+    {
+        ChangeTracker.StateChanged += ChangeTracker_OnStateChanged;
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -122,6 +126,22 @@ public class AppDbContext : DbContext, IAppDbContext
         return base.SaveChangesAsync(cancellationToken);
     }
 
+    private void ChangeTracker_OnStateChanged(object sender, EntityStateChangedEventArgs e)
+    {
+        foreach (var entry in ChangeTracker.Entries<IHasTime>())
+        {
+            if (entry.State == EntityState.Added)
+            {
+                entry.Entity.CreatedAt = DateTime.UtcNow;
+                entry.Entity.ModifiedAt = DateTime.UtcNow;
+            }
+
+            if (entry.State == EntityState.Modified)
+            {
+                entry.Entity.ModifiedAt = DateTime.UtcNow;
+            }
+        }
+    }
     private void SetDates()
     {
         foreach (var entry in ChangeTracker.Entries<IHasTime>())
