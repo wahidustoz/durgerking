@@ -1,6 +1,8 @@
+using DurgerKing.Services;
+
 namespace DurgerKing.Entity;
 
-public class Product
+public class Product : IHasTimeStamp
 {
     public Guid Id { get; set; }
     public string Name { get; set; }
