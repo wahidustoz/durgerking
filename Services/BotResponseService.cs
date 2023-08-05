@@ -1,4 +1,5 @@
 using Durgerking.Services;
+using DurgerKing.Extensions;
 using DurgerKing.Resources;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
@@ -257,6 +258,52 @@ public class BotResponseService : IBotResponseService
                 .Select(x => InlineKeyboardButton.WithCallbackData(localization.GetValue(x), x)).ToArray();
         
         return new InlineKeyboardMarkup(buttonMatrix);
+    }
+
+    public async ValueTask<(long ChatId, long MessageId)> SendProductPaginationAsync(
+        long chatId, 
+        CancellationToken cancellationToken = default)
+    {
+        var products = new string[] 
+        {
+            "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"
+        };
+
+        var message = await botClient.SendTextMessageAsync(
+            text: products[0],
+            chatId: chatId,
+            replyMarkup: botClient.CreateInlinePagination(
+                source: products,
+                queryData: string.Empty,
+                options: new InlinePaginationOptions() { Name = "pagination.products" } 
+            ),
+            cancellationToken: cancellationToken
+        );
+
+        return (chatId, message.MessageId);
+    }
+
+    public async ValueTask<(long ChatId, long MessageId)> UpdateProductPaginationAsync(long chatId, string queryData, CancellationToken cancellationToken = default)
+    {
+        var products = new string[] 
+        {
+            "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"
+        };
+
+        var callbackData = new CallbackData(queryData);
+
+        var message = await botClient.SendTextMessageAsync(
+            text: products[callbackData.Index - 1],
+            chatId: chatId,
+            replyMarkup: botClient.CreateInlinePagination(
+                source: products,
+                queryData: string.Empty,
+                options: new InlinePaginationOptions() { Name = "pagination.products" } 
+            ),
+            cancellationToken: cancellationToken
+        );
+
+        return (chatId, message.MessageId);
     }
 
     private static string GetCheckmarkOrEmpty(string userLanguage, string languageCode)

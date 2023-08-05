@@ -28,6 +28,8 @@ public partial class UpdateHandler
                 => responseService.SendContactAsync(query.Message.Chat.Id, query.From.Id, cancellationToken).AsTask(),
             _ when query.Data == Button.ContactUpdate
                 => responseService.SendContactRequestAsync(query.Message.Chat.Id, cancellationToken).AsTask(),
+            _ when query.Data.Contains("pagination.products")
+                => responseService.UpdateProductPaginationAsync(query.Message.Chat.Id, query.Data, cancellationToken).AsTask(),
             _ => throw new NotImplementedException($"Call back query {query.Data} not supported!")
         };
 

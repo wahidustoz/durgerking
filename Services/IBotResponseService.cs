@@ -1,3 +1,5 @@
+using Telegram.Bot;
+
 namespace DurgerKing.Services;
 
 public interface IBotResponseService
@@ -36,5 +38,13 @@ public interface IBotResponseService
         CancellationToken cancellationToken = default);
     ValueTask<(long ChatId, long MessageId)> SendContactRequestAsync(
         long chatId, 
+        CancellationToken cancellationToken = default);
+
+    ValueTask<(long ChatId, long MessageId)> SendProductPaginationAsync(
+        long chatId, 
+        CancellationToken cancellationToken = default);
+    ValueTask<(long ChatId, long MessageId)> UpdateProductPaginationAsync(
+        long chatId,
+        string queryData, 
         CancellationToken cancellationToken = default);
 }

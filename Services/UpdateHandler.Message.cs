@@ -31,6 +31,8 @@ public partial class UpdateHandler
             await responseService.SendContactAsync(message.Chat.Id, message.From.Id, cancellationToken);
         else if(message.Contact is not null)
             await HandleContactAsync(message, cancellationToken);
+        else if(message.Text == "/pagination")
+            await responseService.SendProductPaginationAsync(message.Chat.Id, cancellationToken);
     }
 
     private async Task HandleContactAsync(Message message, CancellationToken cancellationToken)
