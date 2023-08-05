@@ -32,11 +32,8 @@ public partial class UpdateHandler
                 => responseService.SendContactRequestAsync(query.Message.Chat.Id, cancellationToken).AsTask(),
             _ when query.Data == Button.Category
                 => responseService.SendCategoriesAsync(query.Message.Chat.Id, cancellationToken).AsTask(),
-            _ when (query.Data == Category.Food || query.Data.Contains("toPage")) && query.Data != Category.Snack
-                => responseService.SendFoodAsync(query.Message.Chat.Id, query.Message.MessageId, query.Data, cancellationToken).AsTask(),
-            _ when (query.Data == Category.Snack || query.Data.Contains("toPage")) && query.Data != Category.Food
-                => responseService.SendSnackAsync(query.Message.Chat.Id, query.Message.MessageId, query.Data, cancellationToken).AsTask(),
-                
+            _ when query.Data == Category.Food
+                => responseService.SendFoodAsync(query.Message.Chat.Id, cancellationToken).AsTask(),     
             _ => throw new NotImplementedException($"Call back query {query.Data} not supported!")
         };
 

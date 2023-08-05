@@ -47,8 +47,6 @@ public interface IBotResponseService
 
     ValueTask<(long ChatId, long MessageId)> SendFoodAsync(
         long chatId,
-        int messageId,
-        string clickedNavigation,
         CancellationToken cancellationToken = default);
 
     ValueTask<(long ChatId, long MessageId)> SendSnackAsync(

@@ -288,65 +288,59 @@ public class BotResponseService : IBotResponseService
     }
 
     public async ValueTask<(long ChatId, long MessageId)> SendFoodAsync(
-        long chatId,
-        int messageId,
-        string clickedNavigation, 
+        long chatId, 
         CancellationToken cancellationToken = default)
     {
-        // List<MenuButtonModel> buttonModels = new List<MenuButtonModel>();
         var products = await productService.GetProductsAsync(1, cancellationToken);
 
-        // foreach (var item in products)
-        // {
-        //     buttonModels.Add(new MenuButtonModel(item.Name, item.Id.ToString()));
-        // }
-        Console.WriteLine("------------------------------------------------------------------");
-        Console.WriteLine(clickedNavigation);
-        Console.WriteLine("------------------------------------------------------------------");
-        
-        List<MenuButtonModel> buttonModels = new()
+        var keyboardMatrix = new[]
         {
-            new MenuButtonModel("Button1", "Button1Value"),
-            new MenuButtonModel("Button2", "Button2Value"),
-            new MenuButtonModel("Button3", "Button3Value"),
-            new MenuButtonModel("Button4", "Button4Value"),
-            new MenuButtonModel("Button5", "Button5Value"), 
-            new MenuButtonModel("Button6", "Button6Value"),
-            new MenuButtonModel("Button7", "Button7Value"),
-            new MenuButtonModel("Button8", "Button8Value"),
-            new MenuButtonModel("Button9", "Button9Value"),
+            new[] {"1", "2", "3", "4", "5", "6", "7", "8", "9"}
         };
 
-        const int column = 2;
-        const int row = 2;
-        if(clickedNavigation.Contains("toPage"))
+        var product = products.FirstOrDefault();
+
+        var message = await botClient.SendTextMessageAsync(
+            text: $"name: {product.Name}\nprice: {product.Price}",
+            chatId: chatId,
+            replyMarkup: GetInlineKeyboardPagination(keyboardMatrix),
+            parseMode: ParseMode.Markdown,
+            cancellationToken: cancellationToken);
+
+        return (chatId, message.MessageId);
+    }
+
+    private InlineKeyboardMarkup GetInlineKeyboardPagination(string[][] matrix)
+    {
+        var buttonLength = matrix[0].Length;
+        string[][] newMatrix = new string[1][];
+
+        if(buttonLength > 4)
         {
-            var replyMenu = botClient.GetPaginationInlineKeyboard(buttonModels, column, row, clickedNavigation);
-            var product = products.FirstOrDefault();
-
-            var message = await botClient.SendTextMessageAsync(
-                text: $"name: {product.Name}\nprice: {product.Price}",
-                chatId: chatId,
-                replyMarkup: replyMenu,
-                parseMode: ParseMode.Markdown,
-                cancellationToken: cancellationToken);
-
-            return (chatId, message.MessageId);
+            newMatrix[0] = new string[5];
+            matrix[0][buttonLength - (buttonLength - 4)] = ">>";
+            for(int i = 0; i < buttonLength; i++)
+            {
+                newMatrix[0][i] = matrix[0][i];
+                if(matrix[0][i].Equals(">>"))
+                    break;
+            }
         }
-        else
+        else if(buttonLength <= 4)
         {
-            var replyMenu = botClient.GetPaginationInlineKeyboard(buttonModels, column, row);
-            var product = products.FirstOrDefault();
-
-            var message = await botClient.SendTextMessageAsync(
-                text: $"name: {product.Name}\nprice: {product.Price}",
-                chatId: chatId,
-                replyMarkup: replyMenu,
-                parseMode: ParseMode.Markdown,
-                cancellationToken: cancellationToken);
-
-            return (chatId, message.MessageId);
+            newMatrix[0] = new string[buttonLength];
+            for(int i = 0; i < buttonLength; i++)
+            {
+                newMatrix[0][i] = matrix[0][i];
+            }
         }
+        
+        var buttonMatrix = new InlineKeyboardButton[newMatrix.GetLength(0)][];
+        for(int i = 0; i < newMatrix.GetLength(0); i++)
+            buttonMatrix[i] = newMatrix[i]
+                .Select(x => InlineKeyboardButton.WithCallbackData(localization.GetValue(x), x)).ToArray();
+        
+        return new InlineKeyboardMarkup(buttonMatrix);
     }
 
     public async ValueTask<(long ChatId, long MessageId)> SendSnackAsync(
@@ -420,6 +414,7 @@ public class BotResponseService : IBotResponseService
             cancellationToken: cancellationToken);
         await botClient.DeleteMessageAsync(chatId, message.MessageId, cancellationToken: cancellationToken);
     }
+
 
     private InlineKeyboardMarkup GetInlineKeyboard(string[][] matrix)
     {
