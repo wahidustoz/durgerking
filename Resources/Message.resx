@@ -141,4 +141,8 @@
     <value>&lt;strong&gt;Quyidagi tugmani bosib kontaktni ulashing 👇&lt;/strong&gt;</value>
     <comment/>
   </data>
+  <data name="msg.coming.soon" xml:space="preserve">
+    <value>Tez kunlarda ...</value>
+    <comment/>
+  </data>
 </root>

@@ -8,4 +8,5 @@ public class Message
     public static string LocationMaxExceeded => "msg.location.max.exceeded";
     public static string ContactDisplay => "msg.contact.display";
     public static string ContactRequest => "msg.contact.request";
+    public static string ComingSoon => "msg.coming.soon";
 }

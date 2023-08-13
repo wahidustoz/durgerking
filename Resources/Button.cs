@@ -17,4 +17,5 @@ public class Button
     public static string DeleteAddress => "btn.locations.delete";
     public static string ContactUpdate => "btn.contact.update";
     public static string ContactRequest => "btn.contact.request";
+    public static string Category => "btn.category";
 }

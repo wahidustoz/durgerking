@@ -165,4 +165,8 @@
     <value>Share contact</value>
     <comment/>
   </data>
+  <data name="btn.category" xml:space="preserve">
+    <value>Category</value>
+    <comment/>
+  </data>
 </root>

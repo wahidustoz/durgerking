@@ -20,6 +20,8 @@ public static class TelegramExtensions
         this ITelegramBotClient _, 
         IEnumerable<string> source,
         string queryData = "",
+        string localizerText = default,
+        string localizerData = default,
         InlinePaginationOptions options = default)
     {
         if (source.Count() < 2)
@@ -27,6 +29,8 @@ public static class TelegramExtensions
 
         var buttons = new List<InlineKeyboardButton>();
         var callbackData = new CallbackData(queryData);
+
+        var keyboardMatrix = new InlineKeyboardButton[2][];
 
         // Fix data from source
         if (CanHavePreviousButton(source, options, callbackData))
@@ -56,7 +60,17 @@ public static class TelegramExtensions
                 text: $"{callbackData.Index - 1}",
                 callbackData: $"Name={options.Name}&Index={callbackData.Index-1}&Data={callbackData.Data}"));
 
-            return new InlineKeyboardMarkup(buttons);
+            keyboardMatrix[0] = buttons.ToArray();
+            var keyboard = new[]
+            {
+                InlineKeyboardButton.WithCallbackData(
+                text: localizerText,
+                callbackData: localizerData
+            )
+            };
+            keyboardMatrix[1] = keyboard;
+            
+            return new InlineKeyboardMarkup(keyboardMatrix);
         }
 
         if(CanHaveNextButton(source, options, callbackData))
@@ -70,7 +84,17 @@ public static class TelegramExtensions
                     callbackData: $"Name={options.Name}&Index={i}&Data={callbackData.Data}"));
             }
 
-            return new InlineKeyboardMarkup(buttons);
+            keyboardMatrix[0] = buttons.ToArray();
+            var keyboard = new[]
+            {
+                InlineKeyboardButton.WithCallbackData(
+                    text: localizerText,
+                    callbackData: localizerData
+                )
+            };
+            keyboardMatrix[1] = keyboard;
+
+            return new InlineKeyboardMarkup(keyboardMatrix);
         }
 
         if(CanHavePreviousButton(source, options, callbackData))
@@ -84,15 +108,34 @@ public static class TelegramExtensions
                     callbackData: $"Name={options.Name}&Index={i}&Data={callbackData.Data}"));
             }
 
-            return new InlineKeyboardMarkup(buttons);
+            keyboardMatrix[0] = buttons.ToArray();
+            var keyboard = new[]
+            {
+                InlineKeyboardButton.WithCallbackData(
+                    text: localizerText,
+                    callbackData: localizerData
+                )
+            };
+            keyboardMatrix[1] = keyboard;
+            return new InlineKeyboardMarkup(keyboardMatrix);
         }
 
         buttons.AddRange(source
             .Select((s, i) => InlineKeyboardButton.WithCallbackData(
                 text: (i + 1) == callbackData.Index ? options.CurrentButtonText : $"{i+1}",
                 callbackData: $"Name={options.Name}&Index={i+1}&Data={callbackData.Data}")));
-
-        return new InlineKeyboardMarkup(buttons);
+        
+        keyboardMatrix[0] = buttons.ToArray();
+        var keyboard2 = new[]
+        {
+            InlineKeyboardButton.WithCallbackData(
+                text: localizerText,
+                callbackData: localizerData
+            )
+        };
+        keyboardMatrix[1] = keyboard2;
+    
+        return new InlineKeyboardMarkup(keyboardMatrix);
     }
 
     private static bool CanHaveNextButton(

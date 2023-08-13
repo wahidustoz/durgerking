@@ -165,4 +165,8 @@
     <value>Kontakt ulashish</value>
     <comment/>
   </data>
+  <data name="btn.category" xml:space="preserve">
+    <value>Kategoriya</value>
+    <comment/>
+  </data>
 </root>
