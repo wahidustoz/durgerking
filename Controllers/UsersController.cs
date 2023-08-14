@@ -13,16 +13,16 @@ public class UsersController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetUsers(
         [FromServices] IAppDbContext dbContext,
-        [FromQuery] string search, 
-        [FromQuery] int offset = 0, 
+        [FromQuery] string search,
+        [FromQuery] int offset = 0,
         [FromQuery] int limit = 25)
     {
         var usersQuery = dbContext.Users.AsQueryable();
-        if(false == string.IsNullOrWhiteSpace(search))
-            usersQuery = usersQuery.Where(u => 
+        if (false == string.IsNullOrWhiteSpace(search))
+            usersQuery = usersQuery.Where(u =>
                 u.Username.ToLower().Contains(search.ToLower()) ||
                 u.Fullname.ToLower().Contains(search.ToLower()));
-        
+
         var users = await usersQuery
             .Skip(limit * offset)
             .Take(limit)
@@ -40,11 +40,12 @@ public class UsersController : ControllerBase
     {
         var user = await dbContext.Users
             .Include(u => u.Locations.Where(u => u.IsActive))
+            .Include(u => u.Contact)
             .FirstOrDefaultAsync(u => u.Id == id);
 
-        if(user is null)
+        if (user is null)
             return NotFound();
-            
+
         return Ok(new GetUserDto(user));
     }
 }

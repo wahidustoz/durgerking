@@ -15,8 +15,10 @@ public class GetUserDto
         ModifiedAt = entity.ModifiedAt;
 
         Locations = entity.Locations?.Any() is true
-            ? entity.Locations.Select(i => new GetLocationDto(i)) 
+            ? entity.Locations.Select(i => new GetLocationDto(i))
             : null;
+
+        Contact = entity.Contact is null ? null : new GetContactDto(entity.Contact);
     }
     public long Id { get; set; }
     public string Fullname { get; set; }
@@ -26,4 +28,5 @@ public class GetUserDto
     public DateTime CreatedAt { get; set; }
     public DateTime ModifiedAt { get; set; }
     public IEnumerable<GetLocationDto> Locations { get; set; }
+    public GetContactDto Contact { get; set; }
 }
