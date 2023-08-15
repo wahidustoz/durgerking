@@ -11,6 +11,9 @@ using Telegram.Bot.Polling;
 using DurgerKing;
 using Durgerking.Services;
 using DurgerKing.Entity;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +37,20 @@ builder.Services.AddSingleton<ITelegramBotClient, TelegramBotClient>(
 
 builder.Services.AddDbContext<IAppDbContext, AppDbContext>(
     options => options.UseNpgsql(builder.Configuration.GetConnectionString("PostgresConnection")));
+
+builder.Services.AddDbContext<UserIdentityContext>(
+    options => options.UseNpgsql(builder.Configuration.GetConnectionString("PostgresConnection")));
+
+builder.Services.AddIdentity<AppUser, IdentityRole<Guid>>(options =>
+{
+    options.Password.RequireUppercase = false;
+    options.Password.RequireDigit = true;
+    options.Password.RequiredLength = 6;
+
+    options.User.RequireUniqueEmail = true;
+
+}).AddEntityFrameworkStores<UserIdentityContext>();
+
 
 builder.Services.AddHttpClient<IAddressService, AddressService>(
     configureClient: c => c.BaseAddress = new Uri(builder.Configuration.GetValue("Geocode:BaseUrl", string.Empty)));
