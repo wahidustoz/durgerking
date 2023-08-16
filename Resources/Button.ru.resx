@@ -165,4 +165,8 @@
     <value>Поделиться контактом</value>
     <comment/>
   </data>
+  <data name="btn.category" xml:space="preserve">
+    <value>Категория</value>
+    <comment/>
+  </data>
 </root>

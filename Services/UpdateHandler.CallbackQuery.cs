@@ -1,3 +1,4 @@
+using durgerking.Data.Migrations;
 using DurgerKing.Resources;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -10,6 +11,8 @@ public partial class UpdateHandler
     {
         var task = query.Data switch
         {
+            _ when query.Data == Button.Menu || query.Data == Button.Category
+                => responseService.SendMenuAsync(query.Message.Chat.Id, cancellationToken).AsTask(),
             _ when query.Data == Button.Settings
                 => responseService.SendSettingsAsync(query.Message.Chat.Id, cancellationToken).AsTask(),
             _ when query.Data == Button.LanguageSettings
@@ -28,6 +31,16 @@ public partial class UpdateHandler
                 => responseService.SendContactAsync(query.Message.Chat.Id, query.From.Id, cancellationToken).AsTask(),
             _ when query.Data == Button.ContactUpdate
                 => responseService.SendContactRequestAsync(query.Message.Chat.Id, cancellationToken).AsTask(),
+            _ when query.Data == Category.Food || query.Data.Contains("pagination.foods")
+                => responseService.SendFoodsAsync(query.Message.Chat.Id, query.Data, cancellationToken).AsTask(),
+            _ when query.Data == Category.Snack || query.Data.Contains("pagination.snacks")
+                => responseService.SendSnacksAsync(query.Message.Chat.Id, query.Data, cancellationToken).AsTask(),
+            _ when query.Data == Category.Drink || query.Data.Contains("pagination.drinks")
+                => responseService.SendDrinksAsync(query.Message.Chat.Id, query.Data, cancellationToken).AsTask(),
+            _ when query.Data == Category.Salad || query.Data.Contains("pagination.salads")
+                => responseService.SendSaladsAsync(query.Message.Chat.Id, query.Data, cancellationToken).AsTask(),
+            _ when query.Data == Category.Set || query.Data.Contains("pagination.sets")
+                => responseService.SendSetsAsync(query.Message.Chat.Id, query.Data, cancellationToken).AsTask(),
             _ => throw new NotImplementedException($"Call back query {query.Data} not supported!")
         };
 

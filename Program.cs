@@ -30,6 +30,7 @@ builder.Services.AddTransient<IValidator<UpdateProductDto>, UpdateProductValidat
 builder.Services.AddTransient<IBotResponseService, BotResponseService>();
 builder.Services.AddTransient<IUserService, UserService>();
 builder.Services.AddTransient<ILocalizationHandler, LocalizationHandler>();
+builder.Services.AddTransient<IProductService, ProductService>();
 builder.Services.AddTransient<IUpdateHandler, UpdateHandler>();
 builder.Services.AddHostedService<BotStartingBackgroundService>();
 builder.Services.AddSwaggerGen();

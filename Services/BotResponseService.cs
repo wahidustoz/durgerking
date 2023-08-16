@@ -1,4 +1,5 @@
 using Durgerking.Services;
+using DurgerKing.Extensions;
 using DurgerKing.Resources;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
@@ -12,17 +13,20 @@ public class BotResponseService : IBotResponseService
     private readonly IUserService userService;
     private readonly ILocalizationHandler localization;
     private readonly ITelegramBotClient botClient;
+    private readonly IProductService productService;
 
     public BotResponseService(
         ILogger<BotResponseService> logger,
         IUserService userService,
         ILocalizationHandler localization,
-        ITelegramBotClient botClient)
+        ITelegramBotClient botClient,
+        IProductService productService)
     {
         this.logger = logger;
         this.userService = userService;
         this.localization = localization;
         this.botClient = botClient;
+        this.productService = productService;
     }
 
     public async ValueTask<(long ChatId, long MessageId)> SendGreetingAsync(
@@ -239,6 +243,309 @@ public class BotResponseService : IBotResponseService
         return (chatId, message.MessageId);
     }
 
+    private static string GetCheckmarkOrEmpty(string userLanguage, string languageCode)
+        => string.Equals(userLanguage, languageCode, StringComparison.InvariantCultureIgnoreCase)
+        ? "✅"
+        :string.Empty;
+
+    public async ValueTask<(long ChatId, long MessageId)> SendMenuAsync(long chatId, CancellationToken cancellationToken = default)
+    {
+        var categoryDb = await productService.GetCategoriesAsync(cancellationToken);
+
+        var categories = categoryDb.Select(p => $"category.{p.Id}");
+
+        var row = (int)Math.Ceiling((double)categories.Count() / 2);
+        var categoryMatrix = Enumerable.Range(0, row)
+            .Select(a => categories.Skip(a * 2).Take(2).ToArray()).ToArray();
+
+        var message = await botClient.SendTextMessageAsync(
+            text: $"_{"Categories"}_",
+            chatId: chatId,
+            replyMarkup: GetInlineKeyboard(categoryMatrix),
+            parseMode: ParseMode.Markdown,
+            cancellationToken: cancellationToken);
+
+        return (chatId, message.MessageId);
+    }
+
+    public async ValueTask<(long ChatId, long MessageId)> SendFoodsAsync(long chatId, string queryData, CancellationToken cancellationToken = default)
+    {
+        var products = await productService.GetProductsAsync(1, cancellationToken);
+
+        var categoryButton = InlineKeyboardButton.WithCallbackData(
+        text: $"🔙 {localization.GetValue(Button.Category)}",
+        callbackData: Button.Category);
+
+        if(products.Count == 0)
+        {
+            var ms = await botClient.SendTextMessageAsync(
+                chatId: chatId,
+                text: $"_{localization.GetValue(Message.ComingSoon)}_",
+                replyMarkup: new InlineKeyboardMarkup(categoryButton),
+                parseMode: ParseMode.Markdown,
+                cancellationToken: cancellationToken
+            );
+            return (chatId, ms.MessageId);
+        }
+        else
+        {
+            List<string> names = new();
+            List<string> prices = new();
+            List<byte[]> data = new();
+            List<string> discount = new();
+            foreach (var product in products)
+            {
+                names.Add(product.Name);
+                prices.Add(product.Price.ToString());
+                data.Add(product.Media.First().Data);
+                discount.Add(product.DiscountPercentage.ToString());
+            }
+
+            var callbackData = new CallbackData(queryData);
+
+            using var stream = new MemoryStream(data[callbackData.Index - 1]);
+            var message = await botClient.SendPhotoAsync(
+                chatId: chatId,
+                photo: Telegram.Bot.Types.InputFile.FromStream(stream),
+                caption: $"Name: {names[callbackData.Index - 1]}\nprice: 💲{prices[callbackData.Index - 1]}\ndiscount: ➖{discount[callbackData.Index - 1]}",
+                replyMarkup: botClient.CreateInlinePagination(
+                    source: names,
+                    queryData: queryData,
+                    localizerText: $"🔙 {localization.GetValue(Button.Category)}",
+                    localizerData: Button.Category,
+                    options: new InlinePaginationOptions() { Name = "pagination.foods" }  
+                ),
+                parseMode: ParseMode.Markdown,
+                cancellationToken: cancellationToken
+            );
+
+            return (chatId, message.MessageId);
+        }
+    }
+
+    public async ValueTask<(long ChatId, long MessageId)> SendSnacksAsync(
+        long chatId,
+        string queryData,
+        CancellationToken cancellationToken = default)
+    {
+        var products = await productService.GetProductsAsync(2, cancellationToken);
+        
+        var categoryButton = InlineKeyboardButton.WithCallbackData(
+        text: $"🔙 {localization.GetValue(Button.Category)}",
+        callbackData: Button.Category);
+
+        if(products.Count == 0)
+        {
+            var ms = await botClient.SendTextMessageAsync(
+                chatId: chatId,
+                text: $"_{localization.GetValue(Message.ComingSoon)}_",
+                replyMarkup: new InlineKeyboardMarkup(categoryButton),
+                parseMode: ParseMode.Markdown,
+                cancellationToken: cancellationToken
+            );
+            return (chatId, ms.MessageId);
+        }
+        else
+        {
+            List<string> names = new();
+            List<string> prices = new();
+            List<byte[]> data = new();
+            List<string> discount = new();
+            foreach (var product in products)
+            {
+                names.Add(product.Name);
+                prices.Add(product.Price.ToString());
+                data.Add(product.Media.First().Data);
+                discount.Add(product.DiscountPercentage.ToString());
+            }
+
+            var callbackData = new CallbackData(queryData);
+
+            using var stream = new MemoryStream(data[callbackData.Index - 1]);
+            var message = await botClient.SendPhotoAsync(
+                chatId: chatId,
+                photo: Telegram.Bot.Types.InputFile.FromStream(stream),
+                caption: $"Name: {names[callbackData.Index - 1]}\nprice: 💲{prices[callbackData.Index - 1]}\ndiscount: ➖{discount[callbackData.Index - 1]}",
+                replyMarkup: botClient.CreateInlinePagination(
+                    source: names,
+                    queryData: queryData,
+                    localizerText: $"🔙 {localization.GetValue(Button.Category)}",
+                    localizerData: Button.Category,
+                    options: new InlinePaginationOptions() { Name = "pagination.snacks" }
+                ),
+                parseMode: ParseMode.Markdown,
+                cancellationToken: cancellationToken
+            );
+
+            return (chatId, message.MessageId);
+        }
+    }
+
+    public async ValueTask<(long ChatId, long MessageId)> SendDrinksAsync(long chatId, string queryData, CancellationToken cancellationToken = default)
+    {
+        var products = await productService.GetProductsAsync(3, cancellationToken);
+        
+        var categoryButton = InlineKeyboardButton.WithCallbackData(
+        text: $"🔙 {localization.GetValue(Button.Category)}",
+        callbackData: Button.Category);
+
+        if(products.Count == 0)
+        {
+            var ms = await botClient.SendTextMessageAsync(
+                chatId: chatId,
+                text: $"_{localization.GetValue(Message.ComingSoon)}_",
+                replyMarkup: new InlineKeyboardMarkup(categoryButton),
+                parseMode: ParseMode.Markdown,
+                cancellationToken: cancellationToken
+            );
+            return (chatId, ms.MessageId);
+        }
+        else
+        {
+            List<string> names = new();
+            List<string> prices = new();
+            List<byte[]> data = new();
+            List<string> discount = new();
+            foreach (var product in products)
+            {
+                names.Add(product.Name);
+                prices.Add(product.Price.ToString());
+                data.Add(product.Media.First().Data);
+                discount.Add(product.DiscountPercentage.ToString());
+            }
+
+            var callbackData = new CallbackData(queryData);
+
+            using var stream = new MemoryStream(data[callbackData.Index - 1]);
+            var message = await botClient.SendPhotoAsync(
+                chatId: chatId,
+                photo: Telegram.Bot.Types.InputFile.FromStream(stream),
+                caption: $"Name: {names[callbackData.Index - 1]}\nprice: 💲{prices[callbackData.Index - 1]}\ndiscount: ➖{discount[callbackData.Index - 1]}",
+                replyMarkup: botClient.CreateInlinePagination(
+                    source: names,
+                    queryData: queryData,
+                    localizerText: $"🔙 {localization.GetValue(Button.Category)}",
+                    localizerData: Button.Category,
+                    options: new InlinePaginationOptions() { Name = "pagination.drinks" }
+                ),
+                parseMode: ParseMode.Markdown,
+                cancellationToken: cancellationToken
+            );
+
+            return (chatId, message.MessageId);
+        }
+    }
+
+    public async ValueTask<(long ChatId, long MessageId)> SendSaladsAsync(long chatId, string queryData, CancellationToken cancellationToken = default)
+    {
+        var products = await productService.GetProductsAsync(4, cancellationToken);
+        
+        var categoryButton = InlineKeyboardButton.WithCallbackData(
+        text: $"🔙 {localization.GetValue(Button.Category)}",
+        callbackData: Button.Category);
+
+        if(products.Count == 0)
+        {
+            var ms = await botClient.SendTextMessageAsync(
+                chatId: chatId,
+                text: $"_{localization.GetValue(Message.ComingSoon)}_",
+                replyMarkup: new InlineKeyboardMarkup(categoryButton),
+                parseMode: ParseMode.Markdown,
+                cancellationToken: cancellationToken
+            );
+            return (chatId, ms.MessageId);
+        }
+        else
+        {
+            List<string> names = new();
+            List<string> prices = new();
+            List<byte[]> data = new();
+            List<string> discount = new();
+            foreach (var product in products)
+            {
+                names.Add(product.Name);
+                prices.Add(product.Price.ToString());
+                data.Add(product.Media.First().Data);
+                discount.Add(product.DiscountPercentage.ToString());
+            }
+
+            var callbackData = new CallbackData(queryData);
+
+            using var stream = new MemoryStream(data[callbackData.Index - 1]);
+            var message = await botClient.SendPhotoAsync(
+                chatId: chatId,
+                photo: Telegram.Bot.Types.InputFile.FromStream(stream),
+                caption: $"Name: {names[callbackData.Index - 1]}\nprice: 💲{prices[callbackData.Index - 1]}\ndiscount: ➖{discount[callbackData.Index - 1]}",
+                replyMarkup: botClient.CreateInlinePagination(
+                    source: names,
+                    queryData: queryData,
+                    localizerText: $"🔙 {localization.GetValue(Button.Category)}",
+                    localizerData: Button.Category,
+                    options: new InlinePaginationOptions() { Name = "pagination.salads" }
+                ),
+                parseMode: ParseMode.Markdown,
+                cancellationToken: cancellationToken
+            );
+
+            return (chatId, message.MessageId);
+        }
+    }
+
+    public async ValueTask<(long ChatId, long MessageId)> SendSetsAsync(long chatId, string queryData, CancellationToken cancellationToken = default)
+    {
+        var products = await productService.GetProductsAsync(3, cancellationToken);
+        
+        var categoryButton = InlineKeyboardButton.WithCallbackData(
+        text: $"🔙 {localization.GetValue(Button.Category)}",
+        callbackData: Button.Category);
+
+        if(products.Count == 0)
+        {
+            var ms = await botClient.SendTextMessageAsync(
+                chatId: chatId,
+                text: $"_{localization.GetValue(Message.ComingSoon)}_",
+                replyMarkup: new InlineKeyboardMarkup(categoryButton),
+                parseMode: ParseMode.Markdown,
+                cancellationToken: cancellationToken
+            );
+            return (chatId, ms.MessageId);
+        }
+        else
+        {
+            List<string> names = new();
+            List<string> prices = new();
+            List<byte[]> data = new();
+            List<string> discount = new();
+            foreach (var product in products)
+            {
+                names.Add(product.Name);
+                prices.Add(product.Price.ToString());
+                data.Add(product.Media.First().Data);
+                discount.Add(product.DiscountPercentage.ToString());
+            }
+
+            var callbackData = new CallbackData(queryData);
+
+            using var stream = new MemoryStream(data[callbackData.Index - 1]);
+            var message = await botClient.SendPhotoAsync(
+                chatId: chatId,
+                photo: Telegram.Bot.Types.InputFile.FromStream(stream),
+                caption: $"Name: {names[callbackData.Index - 1]}\nprice: 💲{prices[callbackData.Index - 1]}\ndiscount: ➖{discount[callbackData.Index - 1]}",
+                replyMarkup: botClient.CreateInlinePagination(
+                    source: names,
+                    queryData: queryData,
+                    localizerText: $"🔙 {localization.GetValue(Button.Category)}",
+                    localizerData: Button.Category,
+                    options: new InlinePaginationOptions() { Name = "pagination.sets" }
+                ),
+                parseMode: ParseMode.Markdown,
+                cancellationToken: cancellationToken
+            );
+
+            return (chatId, message.MessageId);
+        }
+    }
+
     private async ValueTask RemoveKeyboardAsync(long chatId, CancellationToken cancellationToken = default)
     {
         var message = await botClient.SendTextMessageAsync(
@@ -258,9 +565,4 @@ public class BotResponseService : IBotResponseService
         
         return new InlineKeyboardMarkup(buttonMatrix);
     }
-
-    private static string GetCheckmarkOrEmpty(string userLanguage, string languageCode)
-        => string.Equals(userLanguage, languageCode, StringComparison.InvariantCultureIgnoreCase)
-        ? "✅"
-        :string.Empty;
 }

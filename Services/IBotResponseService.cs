@@ -37,4 +37,32 @@ public interface IBotResponseService
     ValueTask<(long ChatId, long MessageId)> SendContactRequestAsync(
         long chatId, 
         CancellationToken cancellationToken = default);
+    ValueTask<(long ChatId, long MessageId)> SendMenuAsync(
+        long chatId,
+        CancellationToken cancellationToken = default);
+
+    ValueTask<(long ChatId, long MessageId)> SendFoodsAsync(
+        long chatId,
+        string queryData,
+        CancellationToken cancellationToken = default);
+
+    ValueTask<(long ChatId, long MessageId)> SendSnacksAsync(
+        long chatId,
+        string queryData,
+        CancellationToken cancellationToken = default);
+
+    ValueTask<(long ChatId, long MessageId)> SendDrinksAsync(
+        long chatId,
+        string queryData,
+        CancellationToken cancellationToken = default);
+    
+    ValueTask<(long ChatId, long MessageId)> SendSaladsAsync(
+        long chatId,
+        string queryData,
+        CancellationToken cancellationToken = default);
+    
+    ValueTask<(long ChatId, long MessageId)> SendSetsAsync(
+        long chatId,
+        string queryData,
+        CancellationToken cancellationToken = default);
 }

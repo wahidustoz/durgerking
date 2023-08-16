@@ -141,4 +141,8 @@
     <value>&lt;strong&gt;Click below button to share contact 👇&lt;/strong&gt;</value>
     <comment/>
   </data>
+  <data name="msg.coming.soon" xml:space="preserve">
+    <value>Coming soon ...</value>
+    <comment/>
+  </data>
 </root>

@@ -141,4 +141,8 @@
     <value>&lt;strong&gt;Нажмите кнопку ниже, чтобы поделиться контактом 👇&lt;/strong&gt;</value>
     <comment/>
   </data>
+  <data name="msg.coming.soon" xml:space="preserve">
+    <value>Вскоре ...</value>
+    <comment/>
+  </data>
 </root>
