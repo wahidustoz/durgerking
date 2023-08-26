@@ -1,10 +1,15 @@
 using DurgerKing.Entity;
+using DurgerKing.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.Extensions.Logging;
 
 namespace DurgerKing.Data;
 
 public class AppDbContext : DbContext, IAppDbContext
 {
+    private ILogger<AppDbContext> logger;
+
     public DbSet<User> Users { get; set; }
     public DbSet<Category> Categories { get; set; }
     public DbSet<Product> Products { get; set; }
@@ -12,8 +17,34 @@ public class AppDbContext : DbContext, IAppDbContext
     public DbSet<Contact> Contacts { get; set; }
     public DbSet<Location> Locations { get; set; }
 
-    public AppDbContext(DbContextOptions<AppDbContext> options)
-        : base(options) { }
+    public AppDbContext(
+        DbContextOptions<AppDbContext> options,
+        ILogger<AppDbContext> logger)
+        : base(options) 
+        { 
+            ChangeTracker.StateChanged += OnStateChanged;
+            this.logger = logger;
+        }
+    private void OnStateChanged(object sender, EntityStateChangedEventArgs e)
+    {
+        logger.LogInformation(
+            "{entity} state changed from {from} to {to}", 
+            e.Entry.Entity.GetType().Name, 
+            e.OldState,
+            e.NewState);
+
+        if(e.Entry.Entity is IHasTimeStamp hasTimestamp)
+            if(e.NewState == EntityState.Added)
+                hasTimestamp.CreatedAt = DateTime.UtcNow;
+            else if(e.NewState == EntityState.Modified)
+                hasTimestamp.ModifiedAt = DateTime.UtcNow;
+
+        if(e.Entry.Entity is IHasTimeStamp timeStamp)
+            if(e.NewState == EntityState.Added)
+                timeStamp.CreatedAt = DateTime.UtcNow;
+            else if(e.NewState == EntityState.Modified)
+                timeStamp.ModifiedAt = DateTime.UtcNow;        
+    }    
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -112,6 +143,8 @@ public class AppDbContext : DbContext, IAppDbContext
             .HasForeignKey(m => m.UserId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
+
+        
 
         base.OnModelCreating(modelBuilder);
     }

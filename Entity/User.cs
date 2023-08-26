@@ -1,6 +1,8 @@
+using DurgerKing.Services;
+
 namespace DurgerKing.Entity;
 
-public class User
+public class User : IHasTimeStamp
 {
     public long Id { get; set; }
     public string Fullname { get; set; }
